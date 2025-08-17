@@ -11,6 +11,12 @@ public:
 
     Key getKey(Key key);
 
+    bool eraseKey(Key key);
+
+    Key updateKey(Key key);
+
+    bool injectKey(Key key);
+
 private: 
     uint8_t nKeys = 0;
 };

@@ -7,8 +7,8 @@ class Key
 public:
     bool hasValue()
     {
-        return id != 0 ? true : false;
+        return id != 0;
     }
-private:
+
     uint8_t id = 0;
 };

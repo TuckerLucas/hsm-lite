@@ -15,5 +15,37 @@ TEST_CASE("Get non-existent key")
     Keystore keystore;
     Key key;
 
-    REQUIRE(!keystore.getKey(key).hasValue());
+    REQUIRE_FALSE(keystore.getKey(key).hasValue());
+}
+
+TEST_CASE("Erase non-existent key")
+{
+    Keystore keystore;
+    Key key;
+
+    REQUIRE_FALSE(keystore.eraseKey(key));
+}
+
+TEST_CASE("Update non-existent key")
+{
+    Keystore keystore;
+    Key key;
+
+    REQUIRE_FALSE(keystore.updateKey(key).hasValue());
+}
+
+TEST_CASE("Inject invalid key")
+{
+    Keystore keystore;
+    Key key;
+
+    REQUIRE_FALSE(keystore.injectKey(key));
+}
+
+TEST_CASE("Inject key successful")
+{
+    Keystore keystore;
+    Key key{23};
+
+    REQUIRE(keystore.injectKey(key));
 }
