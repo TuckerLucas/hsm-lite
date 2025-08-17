@@ -5,16 +5,13 @@
 
 TEST_CASE("New keystore has no keys") 
 {
-    // Arrange
     Keystore keystore;
 
-    // Act & Assert
     REQUIRE(keystore.getNumKeys() == 0);
 }
 
 TEST_CASE("Get non-existent key")
 {
-    // Arrange
     Keystore keystore;
     Key key;
 
