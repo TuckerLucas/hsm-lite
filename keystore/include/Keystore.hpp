@@ -7,7 +7,7 @@
 class Keystore
 {
 public:
-    uint8_t getNumKeys();
+    uint16_t getNumKeys();
 
     Key getKey(Key key);
 
@@ -18,6 +18,6 @@ public:
     bool injectKey(Key key);
 
 private: 
-    uint8_t nKeys = 0;
+    uint16_t nKeys = 0;
     Key store[256]{}; 
 };

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <algorithm>
 
-uint8_t Keystore::getNumKeys()
+uint16_t Keystore::getNumKeys()
 {
     return nKeys;
 }
@@ -25,7 +25,7 @@ Key Keystore::updateKey(Key key)
 
 bool Keystore::injectKey(Key key)
 {
-    if(key.id != 0 && !(*std::find(store, store+255, key)).hasValue())
+    if(key.id != 0 && !(*std::find(store, store+255, key)).hasValue() && nKeys <= 255 + 1)
     {
         store[nKeys] = key;
         nKeys++;

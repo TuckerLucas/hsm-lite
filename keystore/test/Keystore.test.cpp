@@ -58,3 +58,20 @@ TEST_CASE("Inject duplicate key fails")
     REQUIRE(keystore.injectKey(key));
     REQUIRE_FALSE(keystore.injectKey(key));
 }
+
+TEST_CASE("Inject when keystore full fails")
+{
+    Keystore keystore;
+    Key key;
+
+    for(uint16_t id = 1; id <= 256; id++)
+    {
+        key.id = id;
+        REQUIRE(keystore.injectKey(key));
+    }
+
+    key.id = 257;
+
+    REQUIRE(keystore.getNumKeys() == 256);
+    REQUIRE_FALSE(keystore.injectKey(key));
+}

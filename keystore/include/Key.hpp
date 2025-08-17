@@ -15,5 +15,5 @@ public:
         return id != 0;
     }
 
-    uint8_t id = 0;
+    uint16_t id = 0;
 };
