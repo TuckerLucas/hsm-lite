@@ -49,3 +49,12 @@ TEST_CASE("Inject key successful")
 
     REQUIRE(keystore.injectKey(key));
 }
+
+TEST_CASE("Inject duplicate key fails")
+{
+    Keystore keystore;
+    Key key{23};
+
+    REQUIRE(keystore.injectKey(key));
+    REQUIRE_FALSE(keystore.injectKey(key));
+}

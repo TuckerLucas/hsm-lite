@@ -5,6 +5,11 @@
 class Key
 {
 public:
+    bool operator==(const Key& rhs)
+    {
+        return this->id == rhs.id;
+    }
+
     bool hasValue()
     {
         return id != 0;

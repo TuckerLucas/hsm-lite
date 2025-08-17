@@ -1,5 +1,8 @@
 #include "Keystore.hpp"
 
+#include <stdlib.h>
+#include <algorithm>
+
 uint8_t Keystore::getNumKeys()
 {
     return nKeys;
@@ -22,5 +25,12 @@ Key Keystore::updateKey(Key key)
 
 bool Keystore::injectKey(Key key)
 {
-    return key.id != 0;
+    if(key.id != 0 && !(*std::find(store, store+255, key)).hasValue())
+    {
+        store[nKeys] = key;
+        nKeys++;
+        return true;
+    }
+    
+    return false;
 }

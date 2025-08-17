@@ -19,4 +19,5 @@ public:
 
 private: 
     uint8_t nKeys = 0;
+    Key store[256]{}; 
 };
