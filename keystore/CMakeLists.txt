@@ -1,6 +1,6 @@
 # Make the keystore library
 add_library(keystore_lib
-    src/keystore.cpp
+    src/Keystore.cpp
 )
 
 target_include_directories(keystore_lib PUBLIC
@@ -9,7 +9,7 @@ target_include_directories(keystore_lib PUBLIC
 
 # Create test executable
 add_executable(keystore_tests
-    test/keystore.test.cpp
+    test/Keystore.test.cpp
 )
 
 # Link library + Catch2 into tests
