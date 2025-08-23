@@ -37,7 +37,7 @@ TEST_CASE("Update non-existent key")
 TEST_CASE("Inject invalid key")
 {
     Keystore keystore;
-    Key key;
+    Key key{KeystoreConstants::maxNumKeys+10};
 
     REQUIRE_FALSE(keystore.injectKey(key));
 }
@@ -64,7 +64,7 @@ TEST_CASE("Inject when keystore full fails")
     Keystore keystore;
     Key key;
 
-    for(uint16_t id = 1; id <= KeystoreConstants::maxNumKeys; id++)
+    for(uint16_t id = 0; id < KeystoreConstants::maxNumKeys; id++)
     {
         key.id = id;
         REQUIRE(keystore.injectKey(key));
