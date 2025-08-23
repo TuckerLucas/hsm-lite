@@ -25,7 +25,7 @@ Key Keystore::updateKey(Key key)
 
 bool Keystore::injectKey(Key key)
 {
-    if(key.id != 0 && !(*std::find(store, store+(KeystoreConstants::maxNumKeys-1), key)).hasValue() && nKeys <= KeystoreConstants::maxNumKeys)
+    if(keyIsInjectable(key))
     {
         store[nKeys] = key;
         nKeys++;
@@ -33,4 +33,13 @@ bool Keystore::injectKey(Key key)
     }
     
     return false;
+}
+
+bool Keystore::keyIsInjectable(Key key)
+{
+    bool idIsValid = (key.id != 0);
+    bool idIsUnique = !(*std::find(store, store+(KeystoreConstants::maxNumKeys-1), key)).hasValue();
+    bool isSpaceAvailable = nKeys <= KeystoreConstants::maxNumKeys;
+
+    return idIsValid && idIsUnique && isSpaceAvailable;
 }

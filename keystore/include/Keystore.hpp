@@ -19,6 +19,8 @@ public:
     bool injectKey(Key key);
 
 private: 
+    bool keyIsInjectable(Key key);
+
     uint16_t nKeys = 0;
     Key store[KeystoreConstants::maxNumKeys]{}; 
 };
