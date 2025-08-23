@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Key.hpp"
+#include "KeystoreConstants.hpp"
 
 #include <cstdint>
 
@@ -19,5 +20,5 @@ public:
 
 private: 
     uint16_t nKeys = 0;
-    Key store[256]{}; 
+    Key store[KeystoreConstants::maxNumKeys]{}; 
 };

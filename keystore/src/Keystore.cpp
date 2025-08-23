@@ -25,7 +25,7 @@ Key Keystore::updateKey(Key key)
 
 bool Keystore::injectKey(Key key)
 {
-    if(key.id != 0 && !(*std::find(store, store+255, key)).hasValue() && nKeys <= 255 + 1)
+    if(key.id != 0 && !(*std::find(store, store+(KeystoreConstants::maxNumKeys-1), key)).hasValue() && nKeys <= KeystoreConstants::maxNumKeys)
     {
         store[nKeys] = key;
         nKeys++;
