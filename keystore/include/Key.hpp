@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+using KeyId = uint16_t;
+
 class Key
 {
 public:
@@ -10,5 +12,5 @@ public:
         return this->id == rhs.id;
     }
 
-    uint16_t id = 0;
+    KeyId id = 0;
 };

@@ -45,7 +45,7 @@ KeystoreStatus Keystore::injectKey(Key key)
     return KeystoreStatus::Success;
 }
 
-bool Keystore::keyIdIsDuplicated(uint16_t keyId)
+bool Keystore::keyIdIsDuplicated(KeyId keyId)
 {
     for(auto i = 0; i < KeystoreConstants::maxNumKeys; i++)
     {

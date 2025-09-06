@@ -20,7 +20,7 @@ public:
     KeystoreStatus injectKey(Key key);
 
 private: 
-    bool keyIdIsDuplicated(uint16_t keyId);
+    bool keyIdIsDuplicated(KeyId keyId);
 
     uint16_t nKeys = 0;
     Key store[KeystoreConstants::maxNumKeys]{}; 

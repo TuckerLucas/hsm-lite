@@ -64,7 +64,7 @@ TEST_CASE("Inject when keystore full fails")
     Keystore keystore;
     Key key;
 
-    for(uint16_t id = 1; id <= KeystoreConstants::maxNumKeys; id++)
+    for(auto id = 1; id <= KeystoreConstants::maxNumKeys; id++)
     {
         key.id = id;
         REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
@@ -75,3 +75,4 @@ TEST_CASE("Inject when keystore full fails")
     REQUIRE(keystore.getNumKeys() == KeystoreConstants::maxNumKeys);
     REQUIRE(keystore.injectKey(key) == KeystoreStatus::KeystoreFull);
 }
+
