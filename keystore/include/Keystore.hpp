@@ -13,14 +13,14 @@ public:
 
     KeystoreStatus getKey(Key key);
 
-    bool eraseKey(Key key);
+    KeystoreStatus eraseKey(Key key);
 
-    Key updateKey(Key key);
+    KeystoreStatus updateKey(Key key);
 
-    bool injectKey(Key key);
+    KeystoreStatus injectKey(Key key);
 
 private: 
-    bool keyIsInjectable(Key key);
+    bool keyIdIsDuplicated(Key key);
 
     uint16_t nKeys = 0;
     Key store[KeystoreConstants::maxNumKeys]{}; 

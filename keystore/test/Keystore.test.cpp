@@ -21,17 +21,17 @@ TEST_CASE("Get non-existent key")
 TEST_CASE("Erase non-existent key")
 {
     Keystore keystore;
-    Key key;
+    Key key{2};
 
-    REQUIRE_FALSE(keystore.eraseKey(key));
+    REQUIRE(keystore.eraseKey(key) == KeystoreStatus::InvalidKeyId);
 }
 
 TEST_CASE("Update non-existent key")
 {
     Keystore keystore;
-    Key key;
+    Key key{10};
 
-    REQUIRE_FALSE(keystore.updateKey(key).hasValue());
+    REQUIRE(keystore.updateKey(key) == KeystoreStatus::InvalidKeyId);
 }
 
 TEST_CASE("Inject invalid key")
@@ -39,7 +39,7 @@ TEST_CASE("Inject invalid key")
     Keystore keystore;
     Key key;
 
-    REQUIRE_FALSE(keystore.injectKey(key));
+    REQUIRE(keystore.injectKey(key) == KeystoreStatus::InvalidKeyId);
 }
 
 TEST_CASE("Inject key successful")
@@ -47,7 +47,7 @@ TEST_CASE("Inject key successful")
     Keystore keystore;
     Key key{23};
 
-    REQUIRE(keystore.injectKey(key));
+    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
 }
 
 TEST_CASE("Inject duplicate key fails")
@@ -55,8 +55,8 @@ TEST_CASE("Inject duplicate key fails")
     Keystore keystore;
     Key key{150};
 
-    REQUIRE(keystore.injectKey(key));
-    REQUIRE_FALSE(keystore.injectKey(key));
+    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(key) == KeystoreStatus::DuplicateKeyId);
 }
 
 TEST_CASE("Inject when keystore full fails")
@@ -67,11 +67,11 @@ TEST_CASE("Inject when keystore full fails")
     for(uint16_t id = 1; id <= KeystoreConstants::maxNumKeys; id++)
     {
         key.id = id;
-        REQUIRE(keystore.injectKey(key));
+        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
     }
 
     key.id = KeystoreConstants::maxNumKeys+1;
 
     REQUIRE(keystore.getNumKeys() == KeystoreConstants::maxNumKeys);
-    REQUIRE_FALSE(keystore.injectKey(key));
+    REQUIRE(keystore.injectKey(key) == KeystoreStatus::KeystoreFull);
 }

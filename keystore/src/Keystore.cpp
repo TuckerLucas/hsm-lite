@@ -13,33 +13,39 @@ KeystoreStatus Keystore::getKey(Key key)
     return KeystoreStatus::InvalidKeyId;
 }
 
-bool Keystore::eraseKey(Key key)
+KeystoreStatus Keystore::eraseKey(Key key)
 {
-    return false;
+    return KeystoreStatus::InvalidKeyId;
 }
 
-Key Keystore::updateKey(Key key)
+KeystoreStatus Keystore::updateKey(Key key)
 {
-    return key;
+    return KeystoreStatus::InvalidKeyId;
 }
 
-bool Keystore::injectKey(Key key)
+KeystoreStatus Keystore::injectKey(Key key)
 {
-    if(keyIsInjectable(key))
+    if(key.id == 0)
     {
-        store[nKeys] = key;
-        nKeys++;
-        return true;
+        return KeystoreStatus::InvalidKeyId;
+    }
+
+    if(nKeys == KeystoreConstants::maxNumKeys)
+    {
+        return KeystoreStatus::KeystoreFull;
+    }
+        
+    if(keyIdIsDuplicated(key))
+    {
+        return KeystoreStatus::DuplicateKeyId;
     }
     
-    return false;
+    store[nKeys] = key;
+    nKeys++;
+    return KeystoreStatus::Success;
 }
 
-bool Keystore::keyIsInjectable(Key key)
+bool Keystore::keyIdIsDuplicated(Key key)
 {
-    bool idIsValid = (key.id != 0);
-    bool idIsUnique = !(*std::find(store, store+(KeystoreConstants::maxNumKeys-1), key)).hasValue();
-    bool isSpaceAvailable = nKeys <= KeystoreConstants::maxNumKeys;
-
-    return idIsValid && idIsUnique && isSpaceAvailable;
+    return (*std::find(store, store+(KeystoreConstants::maxNumKeys-1), key)).hasValue();
 }
