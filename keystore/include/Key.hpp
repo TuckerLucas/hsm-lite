@@ -5,7 +5,7 @@
 class Key
 {
 public:
-    bool operator==(const Key& rhs) const
+    bool operator==(const Key& rhs)
     {
         return this->id == rhs.id;
     }

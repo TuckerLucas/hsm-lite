@@ -37,8 +37,8 @@ bool Keystore::injectKey(Key key)
 
 bool Keystore::keyIsInjectable(Key key)
 {
-    bool idIsValid = (key.id >= 0 && key.id <= (KeystoreConstants::maxNumKeys-1));
-    bool idIsUnique = !(*std::find(std::begin(store), store+(KeystoreConstants::maxNumKeys-1), key)).hasValue();
+    bool idIsValid = (key.id != 0);
+    bool idIsUnique = !(*std::find(store, store+(KeystoreConstants::maxNumKeys-1), key)).hasValue();
     bool isSpaceAvailable = nKeys <= KeystoreConstants::maxNumKeys;
 
     return idIsValid && idIsUnique && isSpaceAvailable;
