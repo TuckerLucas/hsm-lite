@@ -10,10 +10,5 @@ public:
         return this->id == rhs.id;
     }
 
-    bool hasValue()
-    {
-        return id != 0;
-    }
-
     uint16_t id = 0;
 };

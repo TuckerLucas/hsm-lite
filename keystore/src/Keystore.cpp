@@ -34,8 +34,8 @@ KeystoreStatus Keystore::injectKey(Key key)
     {
         return KeystoreStatus::KeystoreFull;
     }
-        
-    if(keyIdIsDuplicated(key))
+
+    if(keyIdIsDuplicated(key.id))
     {
         return KeystoreStatus::DuplicateKeyId;
     }
@@ -45,7 +45,19 @@ KeystoreStatus Keystore::injectKey(Key key)
     return KeystoreStatus::Success;
 }
 
-bool Keystore::keyIdIsDuplicated(Key key)
+bool Keystore::keyIdIsDuplicated(uint16_t keyId)
 {
-    return (*std::find(store, store+(KeystoreConstants::maxNumKeys-1), key)).hasValue();
+    for(auto i = 0; i < KeystoreConstants::maxNumKeys; i++)
+    {
+        if(keyId == store[i].id)
+        {
+            return true;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    return false;
 }
