@@ -15,7 +15,9 @@ TEST_CASE("Get non-existent key")
     Keystore keystore;
     Key key{1};
 
-    REQUIRE(keystore.getKey(key) == KeystoreStatus::InvalidKeyId);
+    auto retrievedKey = keystore.getKey(key.id);
+
+    REQUIRE(!(retrievedKey.has_value()));
 }
 
 TEST_CASE("Erase non-existent key")
@@ -23,7 +25,7 @@ TEST_CASE("Erase non-existent key")
     Keystore keystore;
     Key key{2};
 
-    REQUIRE(keystore.eraseKey(key) == KeystoreStatus::InvalidKeyId);
+    REQUIRE(keystore.eraseKey(key.id) == KeystoreStatus::InvalidKeyId);
 }
 
 TEST_CASE("Update non-existent key")
@@ -76,3 +78,27 @@ TEST_CASE("Inject when keystore full fails")
     REQUIRE(keystore.injectKey(key) == KeystoreStatus::KeystoreFull);
 }
 
+TEST_CASE("Get key after injection successful")
+{
+    Keystore keystore;
+    KeyId injectedKeyId = 42U;
+    Key injectedKey{injectedKeyId};
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+
+    auto retrievedKey = keystore.getKey(injectedKeyId);
+
+    REQUIRE(retrievedKey.has_value());
+    REQUIRE(retrievedKey.value() == injectedKey);
+}
+
+TEST_CASE("Erase key after injection successful")
+{
+    Keystore keystore;
+    KeyId injectedKeyId = 10U;
+    Key injectedKey{injectedKeyId};
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+
+    REQUIRE(keystore.eraseKey(injectedKey.id) == KeystoreStatus::Success);
+}

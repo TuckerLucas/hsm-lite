@@ -5,15 +5,18 @@
 #include "KeystoreStatus.hpp"
 
 #include <cstdint>
+#include <optional>
+
+using namespace std;
 
 class Keystore
 {
 public:
     uint16_t getNumKeys();
 
-    KeystoreStatus getKey(Key key);
+    optional<Key> getKey(KeyId keyId);
 
-    KeystoreStatus eraseKey(Key key);
+    KeystoreStatus eraseKey(KeyId keyId);
 
     KeystoreStatus updateKey(Key key);
 
