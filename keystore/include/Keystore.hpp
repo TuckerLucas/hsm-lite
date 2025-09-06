@@ -2,6 +2,7 @@
 
 #include "Key.hpp"
 #include "KeystoreConstants.hpp"
+#include "KeystoreStatus.hpp"
 
 #include <cstdint>
 
@@ -10,7 +11,7 @@ class Keystore
 public:
     uint16_t getNumKeys();
 
-    Key getKey(Key key);
+    KeystoreStatus getKey(Key key);
 
     bool eraseKey(Key key);
 

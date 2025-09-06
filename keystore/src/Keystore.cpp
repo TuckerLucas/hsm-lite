@@ -8,9 +8,9 @@ uint16_t Keystore::getNumKeys()
     return nKeys;
 }
 
-Key Keystore::getKey(Key key)
+KeystoreStatus Keystore::getKey(Key key)
 {
-    return key;
+    return KeystoreStatus::InvalidKeyId;
 }
 
 bool Keystore::eraseKey(Key key)

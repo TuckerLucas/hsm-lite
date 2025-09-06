@@ -13,9 +13,9 @@ TEST_CASE("New keystore has no keys")
 TEST_CASE("Get non-existent key")
 {
     Keystore keystore;
-    Key key;
+    Key key{1};
 
-    REQUIRE_FALSE(keystore.getKey(key).hasValue());
+    REQUIRE(keystore.getKey(key) == KeystoreStatus::InvalidKeyId);
 }
 
 TEST_CASE("Erase non-existent key")
