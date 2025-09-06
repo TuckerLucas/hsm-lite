@@ -3,14 +3,28 @@
 #include <stdlib.h>
 #include <algorithm>
 
+using namespace std;
+
 uint16_t Keystore::getNumKeys()
 {
     return nKeys;
 }
 
-KeystoreStatus Keystore::getKey(Key key)
+optional<Key> Keystore::getKey(KeyId keyId)
 {
-    return KeystoreStatus::InvalidKeyId;
+    for(auto i = 0; i < KeystoreConstants::maxNumKeys; i++)
+    {
+        if(keyId == store[i].id)
+        {
+            return store[i];
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    return nullopt;
 }
 
 KeystoreStatus Keystore::eraseKey(Key key)
