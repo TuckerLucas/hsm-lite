@@ -12,7 +12,7 @@ uint16_t Keystore::getNumKeys()
 
 optional<Key> Keystore::getKey(KeyId keyId)
 {
-    for(auto i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
         if(keyId == store[i].id)
         {
@@ -29,7 +29,7 @@ optional<Key> Keystore::getKey(KeyId keyId)
 
 KeystoreStatus Keystore::eraseKey(KeyId keyId)
 {
-    for(auto i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
         if(keyId == store[i].id)
         {
@@ -47,8 +47,32 @@ KeystoreStatus Keystore::eraseKey(KeyId keyId)
     return KeystoreStatus::InvalidKeyId;
 }
 
-KeystoreStatus Keystore::updateKey(Key key)
+KeystoreStatus Keystore::updateKey(KeyId keyId, KeyData updatedData)
 {
+    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    {
+        if(store[i].id == keyId)
+        {
+            if(store[i].data == updatedData)
+            {
+                return KeystoreStatus::DuplicateKeyData;
+            }
+
+            if(keyIsEmpty(updatedData))
+            {
+                return KeystoreStatus::KeyIsEmpty;
+            }
+
+            store[i].data = updatedData;
+
+            return KeystoreStatus::Success;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
     return KeystoreStatus::InvalidKeyId;
 }
 
@@ -81,7 +105,7 @@ KeystoreStatus Keystore::injectKey(Key key)
 
 bool Keystore::keyIdIsDuplicated(KeyId keyId)
 {
-    for(auto i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
         if(keyId == store[i].id)
         {
@@ -98,7 +122,7 @@ bool Keystore::keyIdIsDuplicated(KeyId keyId)
 
 bool Keystore::keyIsEmpty(KeyData keyData)
 {
-    for(auto i = 0; i < KeystoreConstants::KeyDataSize; i++)
+    for(size_t i = 0; i < KeystoreConstants::KeyDataSize; i++)
     {
         if(keyData[i] != 0)
         {

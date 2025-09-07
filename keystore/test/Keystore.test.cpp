@@ -35,7 +35,7 @@ TEST_CASE("Update non-existent key")
     Keystore keystore;
     Key key{10};
 
-    REQUIRE(keystore.updateKey(key) == KeystoreStatus::InvalidKeyId);
+    REQUIRE(keystore.updateKey(key.id, keyData) == KeystoreStatus::InvalidKeyId);
 }
 
 TEST_CASE("Inject invalid key id")
@@ -156,4 +156,54 @@ TEST_CASE("Number of keys after erase decreases")
     }
 
     REQUIRE(keystore.getNumKeys() == (nInjectedKeys - nErasedKeys));
+}
+
+TEST_CASE("Update key sucessful")
+{
+    Keystore keystore;
+    Key injectedKey{39, keyData};
+
+    KeyData updatedData = {0x01, 0x02, 0x03};
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.updateKey(injectedKey.id, updatedData) == KeystoreStatus::Success);
+
+    auto retrievedKey = keystore.getKey(injectedKey.id);
+
+    REQUIRE(retrievedKey.has_value());
+    REQUIRE(retrievedKey.value().data == updatedData);
+}
+
+TEST_CASE("Update after erase fails")
+{
+    Keystore keystore;
+    Key injectedKey{9, keyData};
+
+    KeyData updatedData = {0x01, 0x02, 0x03};
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.eraseKey(injectedKey.id) == KeystoreStatus::Success);
+
+    REQUIRE(keystore.updateKey(injectedKey.id, updatedData) == KeystoreStatus::InvalidKeyId);
+}
+
+TEST_CASE("Update key with same data fails")
+{
+    Keystore keystore;
+    Key injectedKey{9, keyData};
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+
+    REQUIRE(keystore.updateKey(injectedKey.id, keyData) == KeystoreStatus::DuplicateKeyData);
+}
+
+TEST_CASE("Update key as empty fails")
+{
+    Keystore keystore;
+    Key injectedKey{19, keyData};
+    KeyData emptyKeyData{};
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+
+    REQUIRE(keystore.updateKey(injectedKey.id, emptyKeyData) == KeystoreStatus::KeyIsEmpty);
 }

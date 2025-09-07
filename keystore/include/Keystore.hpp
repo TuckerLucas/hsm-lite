@@ -18,7 +18,7 @@ public:
 
     KeystoreStatus eraseKey(KeyId keyId);
 
-    KeystoreStatus updateKey(Key key);
+    KeystoreStatus updateKey(KeyId keyId, KeyData updatedData);
 
     KeystoreStatus injectKey(Key key);
 

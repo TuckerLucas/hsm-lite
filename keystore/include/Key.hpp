@@ -18,6 +18,6 @@ public:
         return this->id == rhs.id;
     }
 
-    KeyId id = 0;
-    KeyData data;
+    KeyId id = 0U;
+    KeyData data{};
 };
