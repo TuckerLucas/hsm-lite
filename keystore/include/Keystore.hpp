@@ -27,5 +27,5 @@ private:
     bool keyIsEmpty(KeyData keyData);
 
     uint16_t nKeys = 0;
-    Key store[KeystoreConstants::maxNumKeys]{}; 
+    Key store[KeystoreConstants::MaxNumKeys]{}; 
 };

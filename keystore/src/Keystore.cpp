@@ -12,7 +12,7 @@ uint16_t Keystore::getNumKeys()
 
 optional<Key> Keystore::getKey(KeyId keyId)
 {
-    for(auto i = 0; i < KeystoreConstants::maxNumKeys; i++)
+    for(auto i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
         if(keyId == store[i].id)
         {
@@ -29,7 +29,7 @@ optional<Key> Keystore::getKey(KeyId keyId)
 
 KeystoreStatus Keystore::eraseKey(KeyId keyId)
 {
-    for(auto i = 0; i < KeystoreConstants::maxNumKeys; i++)
+    for(auto i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
         if(keyId == store[i].id)
         {
@@ -59,7 +59,7 @@ KeystoreStatus Keystore::injectKey(Key key)
         return KeystoreStatus::InvalidKeyId;
     }
 
-    if(nKeys == KeystoreConstants::maxNumKeys)
+    if(nKeys == KeystoreConstants::MaxNumKeys)
     {
         return KeystoreStatus::KeystoreFull;
     }
@@ -81,7 +81,7 @@ KeystoreStatus Keystore::injectKey(Key key)
 
 bool Keystore::keyIdIsDuplicated(KeyId keyId)
 {
-    for(auto i = 0; i < KeystoreConstants::maxNumKeys; i++)
+    for(auto i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
         if(keyId == store[i].id)
         {
@@ -98,7 +98,7 @@ bool Keystore::keyIdIsDuplicated(KeyId keyId)
 
 bool Keystore::keyIsEmpty(KeyData keyData)
 {
-    for(auto i = 0; i < 32; i++)
+    for(auto i = 0; i < KeystoreConstants::KeyDataSize; i++)
     {
         if(keyData[i] != 0)
         {

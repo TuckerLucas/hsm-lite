@@ -96,15 +96,15 @@ TEST_CASE("Inject when keystore full fails")
     Key key;
     key.data = keyData;
 
-    for(auto id = 1; id <= KeystoreConstants::maxNumKeys; id++)
+    for(auto id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
     {
         key.id = id;
         REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
     }
 
-    key.id = KeystoreConstants::maxNumKeys+1;
+    key.id = KeystoreConstants::MaxNumKeys+1;
 
-    REQUIRE(keystore.getNumKeys() == KeystoreConstants::maxNumKeys);
+    REQUIRE(keystore.getNumKeys() == KeystoreConstants::MaxNumKeys);
     REQUIRE(keystore.injectKey(key) == KeystoreStatus::KeystoreFull);
 }
 
@@ -138,7 +138,7 @@ TEST_CASE("Number of keys after erase decreases")
     Keystore keystore;
     Key key{};
     key.data = keyData;
-    
+
     uint8_t nInjectedKeys = 44;
     uint8_t nErasedKeys = 11;
 
