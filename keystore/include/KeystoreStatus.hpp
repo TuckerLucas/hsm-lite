@@ -6,5 +6,6 @@ enum class KeystoreStatus
     KeystoreEmpty,
     KeystoreFull,
     DuplicateKeyId,
-    InvalidKeyId
+    InvalidKeyId,
+    KeyIsEmpty
 };

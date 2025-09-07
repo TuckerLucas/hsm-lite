@@ -68,6 +68,11 @@ KeystoreStatus Keystore::injectKey(Key key)
     {
         return KeystoreStatus::DuplicateKeyId;
     }
+
+    if(keyIsEmpty(key.data))
+    {
+        return KeystoreStatus::KeyIsEmpty;
+    }
     
     store[nKeys] = key;
     nKeys++;
@@ -89,4 +94,21 @@ bool Keystore::keyIdIsDuplicated(KeyId keyId)
     }
 
     return false;
+}
+
+bool Keystore::keyIsEmpty(KeyData keyData)
+{
+    for(auto i = 0; i < 32; i++)
+    {
+        if(keyData[i] != 0)
+        {
+            return false;
+        }
+        else
+        {
+            continue;
+        }
+    }
+
+    return true;
 }
