@@ -52,6 +52,21 @@ TEST_CASE("Inject key successful")
     REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
 }
 
+TEST_CASE("Number of keys increases after injection")
+{
+    Keystore keystore;
+    Key key{};
+    uint8_t nInjectedKeys = 23;
+
+    for(size_t id = 1; id <= nInjectedKeys; id++)
+    {
+        key.id = id;
+        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+    }
+
+    REQUIRE(keystore.getNumKeys() == nInjectedKeys);
+}
+
 TEST_CASE("Inject duplicate key fails")
 {
     Keystore keystore;
@@ -101,4 +116,27 @@ TEST_CASE("Erase key after injection successful")
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
     REQUIRE(keystore.eraseKey(injectedKey.id) == KeystoreStatus::Success);
+}
+
+TEST_CASE("Number of keys after erase decreases")
+{
+    Keystore keystore;
+    Key key{};
+    uint8_t nInjectedKeys = 44;
+    uint8_t nErasedKeys = 11;
+
+    for(size_t id = 1; id <= nInjectedKeys; id++)
+    {
+        key.id = id;
+        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+    }
+
+    REQUIRE(keystore.getNumKeys() == nInjectedKeys);
+
+    for(size_t id = 1; id <= nErasedKeys; id++)
+    {
+        REQUIRE(keystore.eraseKey(id) == KeystoreStatus::Success);
+    }
+
+    REQUIRE(keystore.getNumKeys() == (nInjectedKeys - nErasedKeys));
 }

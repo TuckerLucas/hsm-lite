@@ -34,6 +34,8 @@ KeystoreStatus Keystore::eraseKey(KeyId keyId)
         if(keyId == store[i].id)
         {
             store[i] = {};
+            nKeys--;
+
             return KeystoreStatus::Success;
         }
         else
