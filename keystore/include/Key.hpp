@@ -15,7 +15,7 @@ class Key
 public:
     bool operator==(const Key& rhs) const
     {
-        return this->id == rhs.id;
+        return (this->id == rhs.id && this->data == rhs.data);
     }
 
     KeyId id = 0U;

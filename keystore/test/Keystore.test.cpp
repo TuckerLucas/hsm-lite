@@ -59,9 +59,14 @@ TEST_CASE("Inject empty key fails")
 TEST_CASE("Inject key successful")
 {
     Keystore keystore;
-    Key key{23, keyData};
+    Key injectedKey{23, keyData};
 
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+
+    auto retrievedKey = keystore.getKey(injectedKey.id);
+
+    REQUIRE(retrievedKey.has_value());
+    REQUIRE(retrievedKey.value() == injectedKey);
 }
 
 TEST_CASE("Number of keys increases after injection")
@@ -158,7 +163,7 @@ TEST_CASE("Number of keys after erase decreases")
     REQUIRE(keystore.getNumKeys() == (nInjectedKeys - nErasedKeys));
 }
 
-TEST_CASE("Update key sucessful")
+TEST_CASE("Update key successful")
 {
     Keystore keystore;
     Key injectedKey{39, keyData};
@@ -171,7 +176,7 @@ TEST_CASE("Update key sucessful")
     auto retrievedKey = keystore.getKey(injectedKey.id);
 
     REQUIRE(retrievedKey.has_value());
-    REQUIRE(retrievedKey.value().data == updatedData);
+    REQUIRE(retrievedKey->data == updatedData);
 }
 
 TEST_CASE("Update after erase fails")
