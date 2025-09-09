@@ -212,3 +212,32 @@ TEST_CASE("Update key as empty fails")
 
     REQUIRE(keystore.updateKey(injectedKey.id, emptyKeyData) == KeystoreStatus::KeyIsEmpty);
 }
+
+TEST_CASE("Inject key first fits new key after erase")
+{
+    Keystore keystore;
+    Key key;
+    key.data = keyData;
+
+    for(size_t id = 1; id <= 10; id++)
+    {
+        key.id = id;
+
+        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+    }
+
+    REQUIRE(keystore.eraseKey(5) == KeystoreStatus::Success);
+    REQUIRE(keystore.eraseKey(7) == KeystoreStatus::Success);
+
+    key.id = 11;
+
+    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+
+    key.id = 12;
+
+    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+
+    auto ids = keystore.listKeyIds();
+
+    REQUIRE(ids == vector<KeyId>{1, 2, 3, 4, 11, 6, 12, 8, 9, 10});
+}

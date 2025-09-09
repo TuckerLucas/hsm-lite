@@ -10,6 +10,21 @@ uint16_t Keystore::getNumKeys()
     return nKeys;
 }
 
+vector<KeyId> Keystore::listKeyIds() const
+{
+    vector<KeyId> ids;
+    
+    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    {
+        if(store[i].id != 0)
+        {
+            ids.push_back(store[i].id);
+        }
+    }
+
+    return ids;
+}
+
 optional<Key> Keystore::getKey(KeyId keyId)
 {
     for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
@@ -98,9 +113,19 @@ KeystoreStatus Keystore::injectKey(Key key)
         return KeystoreStatus::KeyIsEmpty;
     }
     
-    store[nKeys] = key;
-    nKeys++;
-    return KeystoreStatus::Success;
+    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    {
+        if(store[i].id == 0)
+        {
+            store[i] = key;
+            nKeys++;
+
+            return KeystoreStatus::Success;
+        }
+    }
+
+    // Should never reach this point
+    return KeystoreStatus::KeystoreFull;
 }
 
 bool Keystore::keyIdIsDuplicated(KeyId keyId)

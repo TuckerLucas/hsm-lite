@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <vector>
 
 using namespace std;
 
@@ -13,6 +14,8 @@ class Keystore
 {
 public:
     uint16_t getNumKeys();
+
+    vector<KeyId> listKeyIds() const;
 
     optional<Key> getKey(KeyId keyId);
 
