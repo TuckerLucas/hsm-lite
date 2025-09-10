@@ -27,6 +27,7 @@ public:
 
 private: 
     bool keyIdIsDuplicated(KeyId keyId);
+    
     bool keyIsEmpty(KeyData keyData);
 
     uint16_t nKeys = 0;
