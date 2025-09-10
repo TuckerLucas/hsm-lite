@@ -69,6 +69,22 @@ TEST_CASE("Inject key successful")
     REQUIRE(retrievedKey.value() == injectedKey);
 }
 
+TEST_CASE("Inject key successful, key ID boundary check")
+{
+    Keystore keystore;
+    Key injectedKey;
+
+    injectedKey.id = std::numeric_limits<KeyId>::max();
+    injectedKey.data = keyData;
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+
+    auto retrievedKey = keystore.getKey(injectedKey.id);
+
+    REQUIRE(retrievedKey.has_value());
+    REQUIRE(retrievedKey.value() == injectedKey);
+}
+
 TEST_CASE("Number of keys increases after injection")
 {
     Keystore keystore;
@@ -138,6 +154,26 @@ TEST_CASE("Erase key after injection successful")
     REQUIRE(!keystore.getKey(injectedKey.id).has_value());
 }
 
+TEST_CASE("Erase key when keystore full successful")
+{
+    Keystore keystore;
+    Key injectedKey;
+
+    injectedKey.data = keyData;
+
+    for(size_t id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
+    {
+        injectedKey.id = id;
+        REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    }
+
+    injectedKey.id = KeystoreConstants::MaxNumKeys + 1;
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::KeystoreFull);
+
+    REQUIRE(keystore.eraseKey(KeystoreConstants::MaxNumKeys) == KeystoreStatus::Success);
+    REQUIRE_FALSE(keystore.getKey(injectedKey.id).has_value());
+}
+
 TEST_CASE("Number of keys after erase decreases")
 {
     Keystore keystore;
@@ -177,6 +213,25 @@ TEST_CASE("Update key successful")
 
     REQUIRE(retrievedKey.has_value());
     REQUIRE(retrievedKey->data == updatedData);
+}
+
+TEST_CASE("Update key succesively successful")
+{
+    Keystore keystore;
+    Key injectedKey{39, keyData};
+
+    KeyData originalUpdatedData = {0x01, 0x02, 0x03},
+            newUpdatedData = {0xDE, 0xFF, 0x00};
+
+    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.updateKey(injectedKey.id, originalUpdatedData) == KeystoreStatus::Success);
+    REQUIRE(keystore.updateKey(injectedKey.id, newUpdatedData) == KeystoreStatus::Success);
+
+    auto retrievedKey = keystore.getKey(injectedKey.id);
+
+    REQUIRE(retrievedKey.has_value());
+    REQUIRE_FALSE(retrievedKey->data == originalUpdatedData);
+    REQUIRE(retrievedKey->data == newUpdatedData);
 }
 
 TEST_CASE("Update after erase fails")
@@ -240,4 +295,19 @@ TEST_CASE("Inject key first fits new key after erase")
     auto ids = keystore.listKeyIds();
 
     REQUIRE(ids == vector<KeyId>{1, 2, 3, 4, 11, 6, 12, 8, 9, 10});
+}
+
+TEST_CASE("Key equality")
+{
+    Keystore keystore;
+    KeyData data1{0x01, 0x02, 0x44, 0xAB, 0x77}, 
+            data2{0x01, 0x02, 0x44, 0xAB, 0x78};
+    Key key1{12U, data1}, 
+        key2{12U, data1}, 
+        key3{12U, data2}, 
+        key4{13U, data2};
+    
+    REQUIRE(key1 == key2);
+    REQUIRE(key1 != key3);
+    REQUIRE(key3 != key4);
 }

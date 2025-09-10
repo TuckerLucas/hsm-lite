@@ -18,6 +18,11 @@ public:
         return (this->id == rhs.id && this->data == rhs.data);
     }
 
+    bool operator!=(const Key& rhs) const
+    {
+        return !(this->id == rhs.id && this->data == rhs.data);
+    }
+
     KeyId id = 0U;
     KeyData data{};
 };
