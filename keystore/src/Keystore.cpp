@@ -120,12 +120,11 @@ KeystoreStatus Keystore::injectKey(Key key)
             store[i] = key;
             nKeys++;
 
-            return KeystoreStatus::Success;
+            break;
         }
     }
 
-    // Should never reach this point
-    return KeystoreStatus::KeystoreFull;
+    return KeystoreStatus::Success;
 }
 
 bool Keystore::keyIdIsDuplicated(KeyId keyId)

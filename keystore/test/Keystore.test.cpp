@@ -215,7 +215,7 @@ TEST_CASE("Update key successful")
     REQUIRE(retrievedKey->data == updatedData);
 }
 
-TEST_CASE("Update key succesively successful")
+TEST_CASE("Update key data succesively successful")
 {
     Keystore keystore;
     Key injectedKey{39, keyData};
