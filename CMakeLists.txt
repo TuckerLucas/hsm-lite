@@ -14,5 +14,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 
 # Add the main categories
+add_subdirectory(core)
 add_subdirectory(cryptography)
 add_subdirectory(keystore)
