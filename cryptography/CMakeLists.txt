@@ -1,3 +1,5 @@
+# cryptography/CMakeLists.txt
+
 # Make the crypto library
 add_library(crypto_lib
     src/Cryptography.cpp
@@ -7,12 +9,15 @@ target_include_directories(crypto_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+# Link crypto against core
+target_link_libraries(crypto_lib PUBLIC core_lib)
+
 # Create test executable
 add_executable(crypto_tests
     test/Cryptography.test.cpp
 )
 
-# Link library + Catch2 into tests
+# Link libraries + Catch2 into tests
 target_link_libraries(crypto_tests PRIVATE
     crypto_lib
     keystore_lib

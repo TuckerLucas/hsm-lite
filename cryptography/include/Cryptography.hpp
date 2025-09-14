@@ -3,8 +3,10 @@
 #include "Key.hpp"
 #include "KeystoreStatus.hpp"
 
+using Hash256 = std::array<uint8_t, 32>;
+
 class Cryptography
 {
 public: 
-    KeystoreStatus hashKey(KeyData keyData);
+    Hash256 hashKeySha256(KeyData keyData);
 };
