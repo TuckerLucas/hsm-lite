@@ -1,10 +1,14 @@
+#include <openssl/sha.h>
 #include "Cryptography.hpp"
 
 Hash256 Cryptography::hashKeySha256(KeyData keyData)
 {
-    Hash256 sha256Hash = {0x30, 0x66, 0xe8, 0x4c, 0x41, 0xb4, 0x0e, 0x46, 
-                          0xa5, 0x27, 0x32, 0xec, 0x3e, 0xc8, 0xaf, 0x38, 
-                          0x9a, 0xb4, 0x8c, 0xbe, 0xba, 0xac, 0x0b, 0xe2, 
-                          0x63, 0x63, 0x8c, 0x7a, 0x23, 0xc4, 0x0e, 0xb9};;
-    return sha256Hash;
+    Hash256 hash{};
+    SHA256_CTX ctx;
+    
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, keyData.data(), keyData.size());
+    SHA256_Final(hash.data(), &ctx);
+
+    return hash;
 }

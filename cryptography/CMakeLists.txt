@@ -9,8 +9,14 @@ target_include_directories(crypto_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# Link crypto against core
-target_link_libraries(crypto_lib PUBLIC core_lib)
+# Find and link OpenSSL
+find_package(OpenSSL REQUIRED)
+
+# Link crypto against core + OpenSSL
+target_link_libraries(crypto_lib PUBLIC
+    core_lib
+    OpenSSL::Crypto
+)
 
 # Create test executable
 add_executable(crypto_tests
