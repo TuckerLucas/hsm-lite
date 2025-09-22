@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Cryptography.hpp"
 #include "Key.hpp"
 #include "KeystoreConstants.hpp"
 #include "KeystoreStatus.hpp"

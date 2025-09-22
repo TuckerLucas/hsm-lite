@@ -10,7 +10,9 @@ target_include_directories(keystore_lib PUBLIC
 )
 
 # Link keystore against core
-target_link_libraries(keystore_lib PUBLIC core_lib)
+target_link_libraries(keystore_lib PUBLIC 
+    core_lib
+    crypto_lib)
 
 # Create test executable
 add_executable(keystore_tests

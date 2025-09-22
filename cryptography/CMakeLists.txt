@@ -26,7 +26,6 @@ add_executable(crypto_tests
 # Link libraries + Catch2 into tests
 target_link_libraries(crypto_tests PRIVATE
     crypto_lib
-    keystore_lib
     Catch2::Catch2WithMain
 )
 
