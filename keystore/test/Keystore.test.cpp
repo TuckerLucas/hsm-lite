@@ -29,7 +29,7 @@ TEST_CASE("Get non-existent key")
 
     auto retrievedKey = keystore.getKey(key.id);
 
-    REQUIRE(!(retrievedKey.has_value()));
+    REQUIRE_FALSE(retrievedKey.has_value());
 }
 
 TEST_CASE("Erase non-existent key")
@@ -75,9 +75,11 @@ TEST_CASE("Inject key successful")
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
+    REQUIRE(retrievedKey.has_value());
 
-    auto actualHashKeyData = crypto.hashKeySha256(retrievedKey->data);
+    auto actualHashKeyData = crypto.hashKeySha256(*retrievedKey);
 
+    REQUIRE(actualHashKeyData.has_value());
     REQUIRE(actualHashKeyData == expectedHashKeyData);
 }
 
@@ -93,9 +95,11 @@ TEST_CASE("Inject key successful, key ID boundary check")
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
+    REQUIRE(retrievedKey.has_value());
 
-    auto actualHashKeyData = crypto.hashKeySha256(retrievedKey->data);
+    auto actualHashKeyData = crypto.hashKeySha256(*retrievedKey);
 
+    REQUIRE(actualHashKeyData.has_value());
     REQUIRE(actualHashKeyData == expectedHashKeyData);
 }
 
@@ -237,9 +241,11 @@ TEST_CASE("Update key successful")
     REQUIRE(keystore.updateKey(injectedKey.id, updatedData) == KeystoreStatus::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
+    REQUIRE(retrievedKey.has_value());
 
-    Hash256 actualHashUpdatedData = crypto.hashKeySha256(retrievedKey->data);
+    auto actualHashUpdatedData = crypto.hashKeySha256(*retrievedKey);
 
+    REQUIRE(actualHashUpdatedData.has_value());
     REQUIRE(expectedHashUpdatedData == actualHashUpdatedData);
 }
 
@@ -274,8 +280,10 @@ TEST_CASE("Update key data succesively successful")
     REQUIRE(keystore.updateKey(injectedKey.id, newUpdatedData) == KeystoreStatus::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
+    REQUIRE(retrievedKey.has_value());
 
-    auto actualHashUpdatedData = crypto.hashKeySha256(retrievedKey->data);
+    auto actualHashUpdatedData = crypto.hashKeySha256(*retrievedKey);
+    REQUIRE(actualHashUpdatedData.has_value());
 
     REQUIRE_FALSE(actualHashUpdatedData == expectedHashOriginalUpdatedData);
     REQUIRE(actualHashUpdatedData == expectedHashNewUpdatedData);

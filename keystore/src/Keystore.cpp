@@ -73,7 +73,7 @@ KeystoreStatus Keystore::updateKey(KeyId keyId, KeyData updatedData)
                 return KeystoreStatus::DuplicateKeyData;
             }
 
-            if(keyIsEmpty(updatedData))
+            if(store[i].keyIsEmpty(updatedData))
             {
                 return KeystoreStatus::KeyIsEmpty;
             }
@@ -108,7 +108,7 @@ KeystoreStatus Keystore::injectKey(Key key)
         return KeystoreStatus::DuplicateKeyId;
     }
 
-    if(keyIsEmpty(key.data))
+    if(key.keyIsEmpty(key.data))
     {
         return KeystoreStatus::KeyIsEmpty;
     }
@@ -142,21 +142,4 @@ bool Keystore::keyIdIsDuplicated(KeyId keyId)
     }
 
     return false;
-}
-
-bool Keystore::keyIsEmpty(KeyData keyData)
-{
-    for(size_t i = 0; i < KeystoreConstants::KeyDataSize; i++)
-    {
-        if(keyData[i] != 0)
-        {
-            return false;
-        }
-        else
-        {
-            continue;
-        }
-    }
-
-    return true;
 }

@@ -23,6 +23,23 @@ public:
         return !(this->id == rhs.id && this->data == rhs.data);
     }
 
+    bool keyIsEmpty(KeyData keyData)
+    {
+        for(size_t i = 0; i < KeystoreConstants::KeyDataSize; i++)
+        {
+            if(keyData[i] != 0)
+            {
+                return false;
+            }
+            else
+            {
+                continue;
+            }
+        }
+
+        return true;
+    }
+
     KeyId id = 0U;
     KeyData data{};
 };
