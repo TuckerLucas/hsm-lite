@@ -1,5 +1,3 @@
-# cryptography/CMakeLists.txt
-
 # Make the crypto library
 add_library(crypto_lib
     src/Cryptography.cpp
@@ -26,6 +24,7 @@ add_executable(crypto_tests
 # Link libraries + Catch2 into tests
 target_link_libraries(crypto_tests PRIVATE
     crypto_lib
+    test_support
     Catch2::Catch2WithMain
 )
 

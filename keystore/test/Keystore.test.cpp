@@ -1,19 +1,9 @@
-#include <catch2/catch_test_macros.hpp>
-
 #include "Keystore.hpp"
 #include "Key.hpp"
+#include "TestVectors.hpp"
 
+#include <catch2/catch_test_macros.hpp>
 #include <algorithm>
-
-KeyData keyData = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 
-                   0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 
-                   0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 
-                   0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20};
-
-Hash256 expectedHashKeyData = {0xae, 0x21, 0x6c, 0x2e, 0xf5, 0x24, 0x7a, 0x37, 
-                               0x82, 0xc1, 0x35, 0xef, 0xa2, 0x79, 0xa3, 0xe4, 
-                               0xcd, 0xc6, 0x10, 0x94, 0x27, 0x0f, 0x5d, 0x2b,
-                               0xe5, 0x8c, 0x62, 0x04, 0xb7, 0xa6, 0x12, 0xc9};
 
 TEST_CASE("New keystore has no keys") 
 {
@@ -45,7 +35,7 @@ TEST_CASE("Update non-existent key")
     Keystore keystore;
     Key key{10};
 
-    REQUIRE(keystore.updateKey(key.id, keyData) == KeystoreStatus::InvalidKeyId);
+    REQUIRE(keystore.updateKey(key.id, TestVectors::keyData) == KeystoreStatus::InvalidKeyId);
 }
 
 TEST_CASE("Inject invalid key id")
@@ -70,7 +60,7 @@ TEST_CASE("Inject key successful")
 {
     Keystore keystore;
     Cryptography crypto;
-    Key injectedKey{23, keyData};
+    Key injectedKey{23, TestVectors::keyData};
 
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
@@ -80,7 +70,7 @@ TEST_CASE("Inject key successful")
     auto actualHashKeyData = crypto.hashKeySha256(*retrievedKey);
 
     REQUIRE(actualHashKeyData.has_value());
-    REQUIRE(actualHashKeyData == expectedHashKeyData);
+    REQUIRE(actualHashKeyData == TestVectors::expectedHashKeyData);
 }
 
 TEST_CASE("Inject key successful, key ID boundary check")
@@ -90,7 +80,7 @@ TEST_CASE("Inject key successful, key ID boundary check")
     Key injectedKey;
 
     injectedKey.id = std::numeric_limits<KeyId>::max();
-    injectedKey.data = keyData;
+    injectedKey.data = TestVectors::keyData;
 
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
@@ -100,14 +90,14 @@ TEST_CASE("Inject key successful, key ID boundary check")
     auto actualHashKeyData = crypto.hashKeySha256(*retrievedKey);
 
     REQUIRE(actualHashKeyData.has_value());
-    REQUIRE(actualHashKeyData == expectedHashKeyData);
+    REQUIRE(actualHashKeyData == TestVectors::expectedHashKeyData);
 }
 
 TEST_CASE("Number of keys increases after injection")
 {
     Keystore keystore;
     Key key{};
-    key.data = keyData;
+    key.data = TestVectors::keyData;
 
     uint8_t nInjectedKeys = 23;
 
@@ -123,7 +113,7 @@ TEST_CASE("Number of keys increases after injection")
 TEST_CASE("Inject duplicate key fails")
 {
     Keystore keystore;
-    Key key{150, keyData};
+    Key key{150, TestVectors::keyData};
 
     REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
     REQUIRE(keystore.injectKey(key) == KeystoreStatus::DuplicateKeyId);
@@ -133,7 +123,7 @@ TEST_CASE("Inject when keystore full fails")
 {
     Keystore keystore;
     Key key;
-    key.data = keyData;
+    key.data = TestVectors::keyData;
 
     for(auto id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
     {
@@ -151,7 +141,7 @@ TEST_CASE("Get key after injection successful")
 {
     Keystore keystore;
     KeyId injectedKeyId = 42U;
-    Key injectedKey{injectedKeyId, keyData};
+    Key injectedKey{injectedKeyId, TestVectors::keyData};
 
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
@@ -164,7 +154,7 @@ TEST_CASE("Get key after injection successful")
 TEST_CASE("Erase key after injection successful")
 {
     Keystore keystore;
-    Key injectedKey{10U, keyData};
+    Key injectedKey{10U, TestVectors::keyData};
 
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
@@ -179,7 +169,7 @@ TEST_CASE("Erase key when keystore full successful")
     Keystore keystore;
     Key injectedKey;
 
-    injectedKey.data = keyData;
+    injectedKey.data = TestVectors::keyData;
 
     for(size_t id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
     {
@@ -200,7 +190,7 @@ TEST_CASE("Number of keys after erase decreases")
 {
     Keystore keystore;
     Key key{};
-    key.data = keyData;
+    key.data = TestVectors::keyData;
 
     uint8_t nInjectedKeys = 44;
     uint8_t nErasedKeys = 11;
@@ -225,7 +215,7 @@ TEST_CASE("Update key successful")
 {
     Keystore keystore;
     Cryptography crypto;
-    Key injectedKey{39, keyData};
+    Key injectedKey{39, TestVectors::keyData};
 
     KeyData updatedData = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
                            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
@@ -253,7 +243,7 @@ TEST_CASE("Update key data succesively successful")
 {
     Keystore keystore;
     Cryptography crypto;
-    Key injectedKey{39, keyData};
+    Key injectedKey{39, TestVectors::keyData};
 
     KeyData originalUpdatedData = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
                                    0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
@@ -292,7 +282,7 @@ TEST_CASE("Update key data succesively successful")
 TEST_CASE("Update after erase fails")
 {
     Keystore keystore;
-    Key injectedKey{9, keyData};
+    Key injectedKey{9, TestVectors::keyData};
 
     KeyData updatedData = {0x01, 0x02, 0x03};
 
@@ -305,17 +295,17 @@ TEST_CASE("Update after erase fails")
 TEST_CASE("Update key with same data fails")
 {
     Keystore keystore;
-    Key injectedKey{9, keyData};
+    Key injectedKey{9, TestVectors::keyData};
 
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
 
-    REQUIRE(keystore.updateKey(injectedKey.id, keyData) == KeystoreStatus::DuplicateKeyData);
+    REQUIRE(keystore.updateKey(injectedKey.id, TestVectors::keyData) == KeystoreStatus::DuplicateKeyData);
 }
 
 TEST_CASE("Update key as empty fails")
 {
     Keystore keystore;
-    Key injectedKey{19, keyData};
+    Key injectedKey{19, TestVectors::keyData};
     KeyData emptyKeyData{};
 
     REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
@@ -327,7 +317,7 @@ TEST_CASE("New key is injected in first available slot")
 {
     Keystore keystore;
     Key key;
-    key.data = keyData;
+    key.data = TestVectors::keyData;
 
     for(size_t id = 1; id <= 10; id++)
     {
@@ -355,12 +345,11 @@ TEST_CASE("New key is injected in first available slot")
 TEST_CASE("Key equality")
 {
     Keystore keystore;
-    KeyData data1{0x01, 0x02, 0x44, 0xAB, 0x77}, 
-            data2{0x01, 0x02, 0x44, 0xAB, 0x78};
-    Key key1{12U, data1}, 
-        key2{12U, data1}, 
-        key3{12U, data2}, 
-        key4{13U, data2};
+    
+    Key key1{12U, TestVectors::keyData1}, 
+        key2{12U, TestVectors::keyData1}, 
+        key3{12U, TestVectors::keyData2}, 
+        key4{13U, TestVectors::keyData2};
     
     REQUIRE(key1 == key2);
     REQUIRE(key1 != key3);

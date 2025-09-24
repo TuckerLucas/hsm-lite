@@ -1,5 +1,3 @@
-# keystore/CMakeLists.txt
-
 # Make the keystore library
 add_library(keystore_lib
     src/Keystore.cpp
@@ -22,6 +20,7 @@ add_executable(keystore_tests
 # Link libraries + Catch2 into tests
 target_link_libraries(keystore_tests PRIVATE
     keystore_lib
+    test_support
     Catch2::Catch2WithMain
 )
 
