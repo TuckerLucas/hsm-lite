@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Key.hpp"
-#include "KeystoreStatus.hpp"
+#include "StatusCode.hpp"
 
 #include <optional>
 #include <openssl/evp.h>

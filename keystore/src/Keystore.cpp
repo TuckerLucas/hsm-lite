@@ -42,7 +42,7 @@ optional<Key> Keystore::getKey(KeyId keyId)
     return nullopt;
 }
 
-KeystoreStatus Keystore::eraseKey(KeyId keyId)
+StatusCode Keystore::eraseKey(KeyId keyId)
 {
     for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
@@ -51,7 +51,7 @@ KeystoreStatus Keystore::eraseKey(KeyId keyId)
             store[i] = {};
             nKeys--;
 
-            return KeystoreStatus::Success;
+            return StatusCode::Success;
         }
         else
         {
@@ -59,58 +59,54 @@ KeystoreStatus Keystore::eraseKey(KeyId keyId)
         }
     }
 
-    return KeystoreStatus::InvalidKeyId;
+    return StatusCode::InvalidKeyId;
 }
 
-KeystoreStatus Keystore::updateKey(KeyId keyId, KeyData updatedData)
+StatusCode Keystore::updateKey(KeyId keyId, const KeyData& updatedData)
 {
-    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    if(Key::isEmpty(updatedData))
     {
-        if(store[i].id == keyId)
+        return StatusCode::KeyDataIsEmpty;
+    }
+
+    for(auto& key : store)
+    {
+        if(key.id == keyId)
         {
-            if(store[i].data == updatedData)
+            if(key.data == updatedData)
             {
-                return KeystoreStatus::DuplicateKeyData;
+                return StatusCode::DuplicateKeyData;
             }
 
-            if(store[i].keyIsEmpty(updatedData))
-            {
-                return KeystoreStatus::KeyIsEmpty;
-            }
+            key.data = updatedData;
 
-            store[i].data = updatedData;
-
-            return KeystoreStatus::Success;
-        }
-        else
-        {
-            continue;
+            return StatusCode::Success;
         }
     }
 
-    return KeystoreStatus::InvalidKeyId;
+    return StatusCode::InvalidKeyId;
 }
 
-KeystoreStatus Keystore::injectKey(Key key)
+StatusCode Keystore::injectKey(Key key)
 {
     if(key.id == 0)
     {
-        return KeystoreStatus::InvalidKeyId;
+        return StatusCode::InvalidKeyId;
     }
 
     if(nKeys == KeystoreConstants::MaxNumKeys)
     {
-        return KeystoreStatus::KeystoreFull;
+        return StatusCode::KeystoreFull;
     }
 
     if(keyIdIsDuplicated(key.id))
     {
-        return KeystoreStatus::DuplicateKeyId;
+        return StatusCode::DuplicateKeyId;
     }
 
-    if(key.keyIsEmpty(key.data))
+    if(key.isEmpty())
     {
-        return KeystoreStatus::KeyIsEmpty;
+        return StatusCode::KeyDataIsEmpty;
     }
     
     for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
@@ -124,7 +120,7 @@ KeystoreStatus Keystore::injectKey(Key key)
         }
     }
 
-    return KeystoreStatus::Success;
+    return StatusCode::Success;
 }
 
 bool Keystore::keyIdIsDuplicated(KeyId keyId)

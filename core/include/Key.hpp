@@ -23,17 +23,26 @@ public:
         return !(this->id == rhs.id && this->data == rhs.data);
     }
 
-    bool keyIsEmpty(KeyData keyData)
+    bool isEmpty()
     {
-        for(size_t i = 0; i < KeystoreConstants::KeyDataSize; i++)
+        for(auto byte : this->data)
         {
-            if(keyData[i] != 0)
+            if(byte != 0)
             {
                 return false;
             }
-            else
+        }
+
+        return true;
+    }
+
+    static bool isEmpty(const KeyData& data)
+    {
+        for(auto byte : data)
+        {
+            if(byte != 0)
             {
-                continue;
+                return false;
             }
         }
 

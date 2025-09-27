@@ -3,7 +3,7 @@
 #include "Cryptography.hpp"
 #include "Key.hpp"
 #include "KeystoreConstants.hpp"
-#include "KeystoreStatus.hpp"
+#include "StatusCode.hpp"
 
 #include <cstdint>
 #include <optional>
@@ -20,11 +20,11 @@ public:
 
     optional<Key> getKey(KeyId keyId);
 
-    KeystoreStatus eraseKey(KeyId keyId);
+    StatusCode eraseKey(KeyId keyId);
 
-    KeystoreStatus updateKey(KeyId keyId, KeyData updatedData);
+    StatusCode updateKey(KeyId keyId, const KeyData& updatedData);
 
-    KeystoreStatus injectKey(Key key);
+    StatusCode injectKey(Key key);
 
 private: 
     bool keyIdIsDuplicated(KeyId keyId);

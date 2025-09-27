@@ -2,7 +2,7 @@
 
 optional<Hash256> Cryptography::hashKeySha256(Key key)
 {
-    if(key.keyIsEmpty(key.data))
+    if(key.isEmpty())
     {
         return nullopt;
     }
@@ -19,7 +19,7 @@ optional<Hash256> Cryptography::hashKeySha256(Key key)
 
 optional<array<std::uint8_t, 32U>> Cryptography::aes256Encrypt(Key key, std::array<uint8_t, 32> plainText)
 {
-    if(key.keyIsEmpty(key.data))
+    if(key.isEmpty())
     {
         return nullopt;
     }

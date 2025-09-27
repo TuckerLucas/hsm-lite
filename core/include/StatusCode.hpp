@@ -1,6 +1,6 @@
 #pragma once
 
-enum class KeystoreStatus 
+enum class StatusCode
 {
     Success,
     KeystoreEmpty,
@@ -8,5 +8,5 @@ enum class KeystoreStatus
     DuplicateKeyId,
     DuplicateKeyData,
     InvalidKeyId,
-    KeyIsEmpty
+    KeyDataIsEmpty
 };

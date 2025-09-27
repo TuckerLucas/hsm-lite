@@ -27,7 +27,7 @@ TEST_CASE("Erase non-existent key")
     Keystore keystore;
     Key key{2};
 
-    REQUIRE(keystore.eraseKey(key.id) == KeystoreStatus::InvalidKeyId);
+    REQUIRE(keystore.eraseKey(key.id) == StatusCode::InvalidKeyId);
 }
 
 TEST_CASE("Update non-existent key")
@@ -35,7 +35,7 @@ TEST_CASE("Update non-existent key")
     Keystore keystore;
     Key key{10};
 
-    REQUIRE(keystore.updateKey(key.id, TestVectors::keyData) == KeystoreStatus::InvalidKeyId);
+    REQUIRE(keystore.updateKey(key.id, TestVectors::keyData) == StatusCode::InvalidKeyId);
 }
 
 TEST_CASE("Inject invalid key id")
@@ -43,7 +43,7 @@ TEST_CASE("Inject invalid key id")
     Keystore keystore;
     Key key;
 
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::InvalidKeyId);
+    REQUIRE(keystore.injectKey(key) == StatusCode::InvalidKeyId);
 }
 
 TEST_CASE("Inject empty key fails")
@@ -53,7 +53,7 @@ TEST_CASE("Inject empty key fails")
 
     key.id = 12U;
 
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::KeyIsEmpty);
+    REQUIRE(keystore.injectKey(key) == StatusCode::KeyDataIsEmpty);
 }
 
 TEST_CASE("Inject key successful")
@@ -62,7 +62,7 @@ TEST_CASE("Inject key successful")
     Cryptography crypto;
     Key injectedKey{23, TestVectors::keyData};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
@@ -82,7 +82,7 @@ TEST_CASE("Inject key successful, key ID boundary check")
     injectedKey.id = std::numeric_limits<KeyId>::max();
     injectedKey.data = TestVectors::keyData;
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
@@ -104,7 +104,7 @@ TEST_CASE("Number of keys increases after injection")
     for(size_t id = 1; id <= nInjectedKeys; id++)
     {
         key.id = id;
-        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+        REQUIRE(keystore.injectKey(key) == StatusCode::Success);
     }
 
     REQUIRE(keystore.getNumKeys() == nInjectedKeys);
@@ -115,8 +115,8 @@ TEST_CASE("Inject duplicate key fails")
     Keystore keystore;
     Key key{150, TestVectors::keyData};
 
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::DuplicateKeyId);
+    REQUIRE(keystore.injectKey(key) == StatusCode::Success);
+    REQUIRE(keystore.injectKey(key) == StatusCode::DuplicateKeyId);
 }
 
 TEST_CASE("Inject when keystore full fails")
@@ -128,13 +128,13 @@ TEST_CASE("Inject when keystore full fails")
     for(auto id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
     {
         key.id = id;
-        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+        REQUIRE(keystore.injectKey(key) == StatusCode::Success);
     }
 
     key.id = KeystoreConstants::MaxNumKeys+1;
 
     REQUIRE(keystore.getNumKeys() == KeystoreConstants::MaxNumKeys);
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::KeystoreFull);
+    REQUIRE(keystore.injectKey(key) == StatusCode::KeystoreFull);
 }
 
 TEST_CASE("Get key after injection successful")
@@ -143,7 +143,7 @@ TEST_CASE("Get key after injection successful")
     KeyId injectedKeyId = 42U;
     Key injectedKey{injectedKeyId, TestVectors::keyData};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
     auto retrievedKey = keystore.getKey(injectedKeyId);
 
@@ -156,9 +156,9 @@ TEST_CASE("Erase key after injection successful")
     Keystore keystore;
     Key injectedKey{10U, TestVectors::keyData};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
-    REQUIRE(keystore.eraseKey(injectedKey.id) == KeystoreStatus::Success);
+    REQUIRE(keystore.eraseKey(injectedKey.id) == StatusCode::Success);
 
     auto ids = keystore.listKeyIds();
     REQUIRE(std::find(ids.begin(), ids.end(), injectedKey.id) == ids.end());
@@ -174,13 +174,13 @@ TEST_CASE("Erase key when keystore full successful")
     for(size_t id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
     {
         injectedKey.id = id;
-        REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+        REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
     }
 
     injectedKey.id = KeystoreConstants::MaxNumKeys + 1;
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::KeystoreFull);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::KeystoreFull);
 
-    REQUIRE(keystore.eraseKey(KeystoreConstants::MaxNumKeys) == KeystoreStatus::Success);
+    REQUIRE(keystore.eraseKey(KeystoreConstants::MaxNumKeys) == StatusCode::Success);
     
     auto ids = keystore.listKeyIds();
     REQUIRE(std::find(ids.begin(), ids.end(), injectedKey.id) == ids.end());
@@ -198,14 +198,14 @@ TEST_CASE("Number of keys after erase decreases")
     for(size_t id = 1; id <= nInjectedKeys; id++)
     {
         key.id = id;
-        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+        REQUIRE(keystore.injectKey(key) == StatusCode::Success);
     }
 
     REQUIRE(keystore.getNumKeys() == nInjectedKeys);
 
     for(size_t id = 1; id <= nErasedKeys; id++)
     {
-        REQUIRE(keystore.eraseKey(id) == KeystoreStatus::Success);
+        REQUIRE(keystore.eraseKey(id) == StatusCode::Success);
     }
 
     REQUIRE(keystore.getNumKeys() == (nInjectedKeys - nErasedKeys));
@@ -227,8 +227,8 @@ TEST_CASE("Update key successful")
                                        0xad, 0x3f, 0x24, 0x14, 0xb8, 0x69, 0x80, 0xf8, 
                                        0x41, 0x8d, 0x1c, 0xfa, 0xbd, 0xfa, 0xdf, 0xef};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
-    REQUIRE(keystore.updateKey(injectedKey.id, updatedData) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
+    REQUIRE(keystore.updateKey(injectedKey.id, updatedData) == StatusCode::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
@@ -265,9 +265,9 @@ TEST_CASE("Update key data succesively successful")
                                           0x5f, 0xc9, 0x5c, 0x1b, 0xbe, 0xaa, 0x50, 0x2f, 
                                           0xd6, 0x45, 0x4e, 0xbd, 0xe5, 0xa4, 0xbe, 0xdc};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
-    REQUIRE(keystore.updateKey(injectedKey.id, originalUpdatedData) == KeystoreStatus::Success);
-    REQUIRE(keystore.updateKey(injectedKey.id, newUpdatedData) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
+    REQUIRE(keystore.updateKey(injectedKey.id, originalUpdatedData) == StatusCode::Success);
+    REQUIRE(keystore.updateKey(injectedKey.id, newUpdatedData) == StatusCode::Success);
 
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
@@ -286,10 +286,10 @@ TEST_CASE("Update after erase fails")
 
     KeyData updatedData = {0x01, 0x02, 0x03};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
-    REQUIRE(keystore.eraseKey(injectedKey.id) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
+    REQUIRE(keystore.eraseKey(injectedKey.id) == StatusCode::Success);
 
-    REQUIRE(keystore.updateKey(injectedKey.id, updatedData) == KeystoreStatus::InvalidKeyId);
+    REQUIRE(keystore.updateKey(injectedKey.id, updatedData) == StatusCode::InvalidKeyId);
 }
 
 TEST_CASE("Update key with same data fails")
@@ -297,9 +297,9 @@ TEST_CASE("Update key with same data fails")
     Keystore keystore;
     Key injectedKey{9, TestVectors::keyData};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
-    REQUIRE(keystore.updateKey(injectedKey.id, TestVectors::keyData) == KeystoreStatus::DuplicateKeyData);
+    REQUIRE(keystore.updateKey(injectedKey.id, TestVectors::keyData) == StatusCode::DuplicateKeyData);
 }
 
 TEST_CASE("Update key as empty fails")
@@ -308,9 +308,9 @@ TEST_CASE("Update key as empty fails")
     Key injectedKey{19, TestVectors::keyData};
     KeyData emptyKeyData{};
 
-    REQUIRE(keystore.injectKey(injectedKey) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
-    REQUIRE(keystore.updateKey(injectedKey.id, emptyKeyData) == KeystoreStatus::KeyIsEmpty);
+    REQUIRE(keystore.updateKey(injectedKey.id, emptyKeyData) == StatusCode::KeyDataIsEmpty);
 }
 
 TEST_CASE("New key is injected in first available slot")
@@ -323,19 +323,19 @@ TEST_CASE("New key is injected in first available slot")
     {
         key.id = id;
 
-        REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+        REQUIRE(keystore.injectKey(key) == StatusCode::Success);
     }
 
-    REQUIRE(keystore.eraseKey(5) == KeystoreStatus::Success);
-    REQUIRE(keystore.eraseKey(7) == KeystoreStatus::Success);
+    REQUIRE(keystore.eraseKey(5) == StatusCode::Success);
+    REQUIRE(keystore.eraseKey(7) == StatusCode::Success);
 
     key.id = 11;
 
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(key) == StatusCode::Success);
 
     key.id = 12;
 
-    REQUIRE(keystore.injectKey(key) == KeystoreStatus::Success);
+    REQUIRE(keystore.injectKey(key) == StatusCode::Success);
 
     auto ids = keystore.listKeyIds();
 
