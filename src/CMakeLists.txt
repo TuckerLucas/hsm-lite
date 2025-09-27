@@ -1,0 +1,4 @@
+add_subdirectory(core)
+add_subdirectory(cryptography)
+add_subdirectory(keystore)
+add_subdirectory(test_support)
