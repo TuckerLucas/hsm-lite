@@ -31,3 +31,23 @@ TEST_CASE("Hash all zero key fails")
 
     REQUIRE_FALSE(actualHashKeyData.has_value());
 }
+
+TEST_CASE("Encrypt plain text successful - AES256")
+{
+    Cryptography crypto;
+    Key key{76, TestVectors::keyData};
+
+    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText);
+
+    REQUIRE(actualAes256EcbCipherText == TestVectors::expectedAes256EcbCipherText);
+}
+
+TEST_CASE("Encrypt plain text with empty key fails")
+{
+    Cryptography crypto;
+    Key key{7, TestVectors::allZeroKeyData};
+
+    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText);
+
+    REQUIRE_FALSE(actualAes256EcbCipherText.has_value());
+}
