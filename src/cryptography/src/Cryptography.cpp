@@ -80,3 +80,54 @@ optional<array<std::uint8_t, 32U>> Cryptography::aes256Encrypt(Key key, std::arr
 
     return cipherText;
 }
+
+std::optional<std::array<std::uint8_t, 32U>> Cryptography::aes256Decrypt(const Key& key, const std::array<std::uint8_t, 32U>& cipherText)
+{
+    if (Key::isEmpty(key.data))
+    {
+        return std::nullopt;
+    }
+
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx)
+    {
+        return std::nullopt;
+    }
+
+    std::array<std::uint8_t, 32U> plainText{};
+    int outLen1 = 0;
+    int outLen2 = 0;
+
+    bool success = true;
+
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_ecb(), nullptr, key.data.data(), nullptr) != 1)
+    {
+        success = false;
+    }
+
+    // Disable padding (we want raw block)
+    EVP_CIPHER_CTX_set_padding(ctx, 0);
+
+    if (success && EVP_DecryptUpdate(ctx,
+                                     plainText.data(),
+                                     &outLen1,
+                                     cipherText.data(),
+                                     static_cast<int>(cipherText.size())) != 1)
+    {
+        success = false;
+    }
+
+    if (success && EVP_DecryptFinal_ex(ctx, plainText.data() + outLen1, &outLen2) != 1)
+    {
+        success = false;
+    }
+
+    EVP_CIPHER_CTX_free(ctx);
+
+    if (!success)
+    {
+        return std::nullopt;
+    }
+
+    return plainText;
+}
