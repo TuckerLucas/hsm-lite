@@ -23,17 +23,9 @@ public:
         return !(this->id == rhs.id && this->data == rhs.data);
     }
 
-    bool isEmpty()
+    bool isEmpty() const
     {
-        for(auto byte : this->data)
-        {
-            if(byte != 0)
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return isEmpty(this->data);
     }
 
     static bool isEmpty(const KeyData& data)

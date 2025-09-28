@@ -17,7 +17,7 @@ optional<Hash256> Cryptography::hashKeySha256(Key key)
     return hash;
 }
 
-optional<array<std::uint8_t, 32U>> Cryptography::aes256Encrypt(Key key, std::array<uint8_t, 32> plainText)
+optional<array<uint8_t, 32U>> Cryptography::aes256Encrypt(const Key& key, const array<uint8_t, 32>& plainText)
 {
     if(key.isEmpty())
     {

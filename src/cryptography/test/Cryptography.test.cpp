@@ -73,3 +73,19 @@ TEST_CASE("Decrypt cipher text with empty key fails - AES256")
 
     REQUIRE_FALSE(actualAes256EcbPlainText.has_value());
 }
+
+TEST_CASE("Encrypt/decrypt success - AES256")
+{
+    Cryptography crypto;
+    Key key{33, TestVectors::keyData};
+
+    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText);
+
+    REQUIRE(actualAes256EcbCipherText.has_value());
+    REQUIRE(actualAes256EcbCipherText == TestVectors::expectedAes256EcbCipherText);
+
+    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText);
+
+    REQUIRE(actualAes256EcbPlainText.has_value());
+    REQUIRE(actualAes256EcbPlainText == TestVectors::plainText);
+}
