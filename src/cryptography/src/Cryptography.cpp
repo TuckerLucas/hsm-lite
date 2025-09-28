@@ -1,23 +1,47 @@
 #include "Cryptography.hpp"
 
-optional<Hash256> Cryptography::hashKeySha256(Key key)
+optional<vector<uint8_t>> Cryptography::hashKey(Key key, HashAlgorithm hashAlgorithm)
 {
     if(key.isEmpty())
     {
         return nullopt;
     }
 
-    Hash256 hash{};
-    SHA256_CTX ctx;
-    
-    SHA256_Init(&ctx);
-    SHA256_Update(&ctx, key.data.data(), key.data.size());
-    SHA256_Final(hash.data(), &ctx);
+    vector<uint8_t> hash{};
+
+    switch (hashAlgorithm)
+    {
+        case HashAlgorithm::SHA256:
+            
+            hash.resize(32);
+            SHA256_CTX sha256ctx;
+            
+            SHA256_Init(&sha256ctx);
+            SHA256_Update(&sha256ctx, key.data.data(), key.data.size());
+            SHA256_Final(hash.data(), &sha256ctx);
+
+            break;
+        
+        case HashAlgorithm::SHA512:
+
+            hash.resize(64);
+            SHA512_CTX sha512ctx;
+            
+            SHA512_Init(&sha512ctx);
+            SHA512_Update(&sha512ctx, key.data.data(), key.data.size());
+            SHA512_Final(hash.data(), &sha512ctx);
+
+            break;
+
+        default:
+            
+            return nullopt;
+    }
 
     return hash;
 }
 
-optional<array<uint8_t, 32U>> Cryptography::aes256Encrypt(const Key& key, const array<uint8_t, 32>& plainText)
+optional<vector<uint8_t>> Cryptography::aes256Encrypt(const Key& key, const vector<uint8_t>& plainText)
 {
     if(key.isEmpty())
     {
@@ -30,7 +54,8 @@ optional<array<uint8_t, 32U>> Cryptography::aes256Encrypt(const Key& key, const 
         return nullopt;
     }
 
-    array<uint8_t, 32> cipherText{};
+    vector<uint8_t> cipherText{};
+    cipherText.resize(32);
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 
@@ -81,7 +106,7 @@ optional<array<uint8_t, 32U>> Cryptography::aes256Encrypt(const Key& key, const 
     return cipherText;
 }
 
-std::optional<std::array<std::uint8_t, 32U>> Cryptography::aes256Decrypt(const Key& key, const std::array<std::uint8_t, 32U>& cipherText)
+std::optional<vector<uint8_t>> Cryptography::aes256Decrypt(const Key& key, const vector<uint8_t>& cipherText)
 {
     if (Key::isEmpty(key.data))
     {
@@ -94,7 +119,9 @@ std::optional<std::array<std::uint8_t, 32U>> Cryptography::aes256Decrypt(const K
         return std::nullopt;
     }
 
-    std::array<std::uint8_t, 32U> plainText{};
+    vector<uint8_t> plainText{};
+    plainText.resize(32);
+
     int outLen1 = 0;
     int outLen2 = 0;
 

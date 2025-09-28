@@ -3,12 +3,12 @@
 #include "KeystoreConstants.hpp"
 
 #include <cstdint>
-#include <array>
+#include <vector>
 
 using namespace std;
 
 using KeyId = uint16_t;
-using KeyData = array<uint8_t, KeystoreConstants::KeyDataSize>;
+using KeyData = vector<uint8_t>;
 
 class Key
 {

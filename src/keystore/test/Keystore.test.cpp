@@ -67,10 +67,10 @@ TEST_CASE("Inject key successful")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashKeyData = crypto.hashKeySha256(*retrievedKey);
+    auto actualHashKeyData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashKeyData.has_value());
-    REQUIRE(actualHashKeyData == TestVectors::expectedHashKeyData);
+    REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_KeyData);
 }
 
 TEST_CASE("Inject key successful, key ID boundary check")
@@ -87,10 +87,10 @@ TEST_CASE("Inject key successful, key ID boundary check")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashKeyData = crypto.hashKeySha256(*retrievedKey);
+    auto actualHashKeyData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashKeyData.has_value());
-    REQUIRE(actualHashKeyData == TestVectors::expectedHashKeyData);
+    REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_KeyData);
 }
 
 TEST_CASE("Number of keys increases after injection")
@@ -222,7 +222,7 @@ TEST_CASE("Update key successful")
                            0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
                            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
 
-    Hash256 expectedHashUpdatedData = {0x47, 0x73, 0xd1, 0x2e, 0x23, 0x71, 0xbb, 0x93, 
+    vector<uint8_t> expectedHashUpdatedData = {0x47, 0x73, 0xd1, 0x2e, 0x23, 0x71, 0xbb, 0x93, 
                                        0x5b, 0x9a, 0x0f, 0x54, 0x39, 0xb4, 0xa1, 0xc3, 
                                        0xad, 0x3f, 0x24, 0x14, 0xb8, 0x69, 0x80, 0xf8, 
                                        0x41, 0x8d, 0x1c, 0xfa, 0xbd, 0xfa, 0xdf, 0xef};
@@ -233,7 +233,7 @@ TEST_CASE("Update key successful")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashUpdatedData = crypto.hashKeySha256(*retrievedKey);
+    auto actualHashUpdatedData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashUpdatedData.has_value());
     REQUIRE(expectedHashUpdatedData == actualHashUpdatedData);
@@ -255,12 +255,12 @@ TEST_CASE("Update key data succesively successful")
                               0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
                               0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11};
 
-    Hash256 expectedHashOriginalUpdatedData = {0x47, 0x73, 0xd1, 0x2e, 0x23, 0x71, 0xbb, 0x93, 
+    vector<uint8_t> expectedHashOriginalUpdatedData = {0x47, 0x73, 0xd1, 0x2e, 0x23, 0x71, 0xbb, 0x93, 
                                                0x5b, 0x9a, 0x0f, 0x54, 0x39, 0xb4, 0xa1, 0xc3, 
                                                0xad, 0x3f, 0x24, 0x14, 0xb8, 0x69, 0x80, 0xf8, 
                                                0x41, 0x8d, 0x1c, 0xfa, 0xbd, 0xfa, 0xdf, 0xef};
                                                
-    Hash256 expectedHashNewUpdatedData = {0x02, 0xd4, 0x49, 0xa3, 0x1f, 0xbb, 0x26, 0x7c, 
+    vector<uint8_t> expectedHashNewUpdatedData = {0x02, 0xd4, 0x49, 0xa3, 0x1f, 0xbb, 0x26, 0x7c, 
                                           0x8f, 0x35, 0x2e, 0x99, 0x68, 0xa7, 0x9e, 0x3e, 
                                           0x5f, 0xc9, 0x5c, 0x1b, 0xbe, 0xaa, 0x50, 0x2f, 
                                           0xd6, 0x45, 0x4e, 0xbd, 0xe5, 0xa4, 0xbe, 0xdc};
@@ -272,7 +272,7 @@ TEST_CASE("Update key data succesively successful")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashUpdatedData = crypto.hashKeySha256(*retrievedKey);
+    auto actualHashUpdatedData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
     REQUIRE(actualHashUpdatedData.has_value());
 
     REQUIRE_FALSE(actualHashUpdatedData == expectedHashOriginalUpdatedData);

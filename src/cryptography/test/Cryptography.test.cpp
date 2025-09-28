@@ -12,14 +12,29 @@ TEST_CASE("Hash key successful")
     Key key1{1, TestVectors::keyData1};
     Key key2{2, TestVectors::keyData2};
     
-    auto actualHashKeyData1 = crypto.hashKeySha256(key1);
-    auto actualHashKeyData2 = crypto.hashKeySha256(key2);
+    SECTION("SHA256")
+    {
+        auto actualSha256Hash_KeyData1 = crypto.hashKey(key1, HashAlgorithm::SHA256);
+        auto actualSha256Hash_KeyData2 = crypto.hashKey(key2, HashAlgorithm::SHA256);
 
-    REQUIRE(actualHashKeyData1.has_value());
-    REQUIRE(actualHashKeyData2.has_value());
+        REQUIRE(actualSha256Hash_KeyData1.has_value());
+        REQUIRE(actualSha256Hash_KeyData2.has_value());
 
-    REQUIRE(actualHashKeyData1 == TestVectors::expectedHashKeyData1);
-    REQUIRE(actualHashKeyData2 == TestVectors::expectedHashKeyData2);
+        REQUIRE(actualSha256Hash_KeyData1 == TestVectors::expectedSha256Hash_KeyData1);
+        REQUIRE(actualSha256Hash_KeyData2 == TestVectors::expectedSha256Hash_KeyData2);
+    }
+
+    SECTION("SHA512")
+    {
+        auto actualSha512Hash_KeyData1 = crypto.hashKey(key1, HashAlgorithm::SHA512);
+        auto actualSha512Hash_KeyData2 = crypto.hashKey(key2, HashAlgorithm::SHA512);
+
+        REQUIRE(actualSha512Hash_KeyData1.has_value());
+        REQUIRE(actualSha512Hash_KeyData2.has_value());
+
+        REQUIRE(actualSha512Hash_KeyData1 == TestVectors::expectedSha512Hash_KeyData1);
+        REQUIRE(actualSha512Hash_KeyData2 == TestVectors::expectedSha512Hash_KeyData2);
+    }
 }
 
 TEST_CASE("Hash all zero key fails")
@@ -27,7 +42,18 @@ TEST_CASE("Hash all zero key fails")
     Cryptography crypto;
     Key key{28, TestVectors::allZeroKeyData};
 
-    auto actualHashKeyData = crypto.hashKeySha256(key);
+    auto actualHashKeyData = crypto.hashKey(key, HashAlgorithm::SHA256);
+
+    REQUIRE_FALSE(actualHashKeyData.has_value());
+}
+
+TEST_CASE("Hash key with invalid algorithm fails")
+{
+    Cryptography crypto;
+    Key key{200, TestVectors::keyData1};
+    uint8_t invalidHashAlgorithm = 2U;
+
+    auto actualHashKeyData = crypto.hashKey(key, static_cast<HashAlgorithm>(invalidHashAlgorithm));
 
     REQUIRE_FALSE(actualHashKeyData.has_value());
 }

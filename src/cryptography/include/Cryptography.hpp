@@ -3,18 +3,24 @@
 #include "Key.hpp"
 #include "StatusCode.hpp"
 
+#include <vector>
+#include <array>
 #include <optional>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
-using Hash256 = std::array<uint8_t, 32>;
+enum class HashAlgorithm
+{
+    SHA256,
+    SHA512
+};
 
 class Cryptography
 {
 public: 
-    optional<Hash256> hashKeySha256(Key key);
+    optional<vector<uint8_t>> hashKey(Key key, HashAlgorithm hashAlgorithm);
 
-    optional<array<uint8_t, 32U>> aes256Encrypt(const Key& key, const array<uint8_t, 32>& plainText);
+    optional<vector<uint8_t>> aes256Encrypt(const Key& key, const vector<uint8_t>& plainText);
 
-    optional<array<uint8_t, 32U>> aes256Decrypt(const Key& key, const array<uint8_t, 32U>& cipherText);
+    optional<vector<uint8_t>> aes256Decrypt(const Key& key, const vector<uint8_t>& cipherText);
 };
