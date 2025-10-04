@@ -86,11 +86,31 @@ TEST_CASE("Encrypt plain text successful - AES256")
 {
     Cryptography crypto;
     Key key{76, TestVectors::keyData};
+    Key key1{36, TestVectors::keyData1};
 
-    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
+    SECTION("ECB Mode")
+    {
+        auto actualAes256EcbCipherText_KeyData = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
+        auto actualAes256EcbCipherText_KeyData1 = crypto.aes256Encrypt(key1, TestVectors::plainText, AesMode::ECB);
 
-    REQUIRE(actualAes256EcbCipherText.has_value());
-    REQUIRE(actualAes256EcbCipherText == TestVectors::expectedAes256EcbCipherText);
+        REQUIRE(actualAes256EcbCipherText_KeyData.has_value());
+        REQUIRE(actualAes256EcbCipherText_KeyData1.has_value());
+
+        REQUIRE(actualAes256EcbCipherText_KeyData == TestVectors::expectedAes256EcbCipherText_KeyData);
+        REQUIRE(actualAes256EcbCipherText_KeyData1 == TestVectors::expectedAes256EcbCipherText_KeyData1);
+    }
+
+    SECTION("CBC Mode")
+    {
+        auto actualAes256CbcCipherText_KeyData = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::CBC);
+        auto actualAes256CbcCipherText_KeyData1 = crypto.aes256Encrypt(key1, TestVectors::plainText, AesMode::CBC);
+        
+        REQUIRE(actualAes256CbcCipherText_KeyData.has_value());
+        REQUIRE(actualAes256CbcCipherText_KeyData1.has_value());
+
+        REQUIRE(actualAes256CbcCipherText_KeyData == TestVectors::expectedAes256CbcCipherText_KeyData);
+        REQUIRE(actualAes256CbcCipherText_KeyData1 == TestVectors::expectedAes256CbcCipherText_KeyData1);        
+    }
 }
 
 TEST_CASE("Encrypt plain text with empty key fails")
@@ -98,20 +118,51 @@ TEST_CASE("Encrypt plain text with empty key fails")
     Cryptography crypto;
     Key key{7, TestVectors::allZeroKeyData};
 
-    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
+    auto cipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
 
-    REQUIRE_FALSE(actualAes256EcbCipherText.has_value());
+    REQUIRE_FALSE(cipherText.has_value());
+}
+
+TEST_CASE("Encrypt plain text with invalid block cipher mode of operation fails")
+{
+    Cryptography crypto;
+    Key key{250, TestVectors::keyData};
+    uint8_t invalidMode = 0xFF;
+
+    auto cipherText = crypto.aes256Encrypt(key, TestVectors::plainText, static_cast<AesMode>(invalidMode));
+
+    REQUIRE_FALSE(cipherText.has_value());
 }
 
 TEST_CASE("Decrypt cipher text successful - AES256")
 {
     Cryptography crypto;
     Key key{76, TestVectors::keyData};
+    Key key1{88, TestVectors::keyData1};
 
-    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText, AesMode::ECB);
+    SECTION("ECB Mode")
+    {
+        auto actualAes256EcbPlainText_KeyData = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText_KeyData, AesMode::ECB);
+        auto actualAes256EcbPlainText_KeyData1 = crypto.aes256Decrypt(key1, TestVectors::expectedAes256EcbCipherText_KeyData1, AesMode::ECB);
 
-    REQUIRE(actualAes256EcbPlainText.has_value());
-    REQUIRE(actualAes256EcbPlainText == TestVectors::plainText);
+        REQUIRE(actualAes256EcbPlainText_KeyData.has_value());
+        REQUIRE(actualAes256EcbPlainText_KeyData1.has_value());
+
+        REQUIRE(actualAes256EcbPlainText_KeyData == TestVectors::plainText);
+        REQUIRE(actualAes256EcbPlainText_KeyData1 == TestVectors::plainText);
+    }
+
+    SECTION("CBC Mode")
+    {
+        auto actualAes256CbcPlainText_KeyData = crypto.aes256Decrypt(key, TestVectors::expectedAes256CbcCipherText_KeyData, AesMode::CBC);
+        auto actualAes256CbcPlainText_KeyData1 = crypto.aes256Decrypt(key1, TestVectors::expectedAes256CbcCipherText_KeyData1, AesMode::CBC);
+
+        REQUIRE(actualAes256CbcPlainText_KeyData.has_value());
+        REQUIRE(actualAes256CbcPlainText_KeyData1.has_value());
+
+        REQUIRE(actualAes256CbcPlainText_KeyData == TestVectors::plainText);
+        REQUIRE(actualAes256CbcPlainText_KeyData1 == TestVectors::plainText);
+    }
 }
 
 TEST_CASE("Decrypt cipher text with empty key fails - AES256")
@@ -119,9 +170,20 @@ TEST_CASE("Decrypt cipher text with empty key fails - AES256")
     Cryptography crypto;
     Key key{76, TestVectors::allZeroKeyData};
 
-    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText, AesMode::ECB);
+    auto plainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText_KeyData, AesMode::ECB);
 
-    REQUIRE_FALSE(actualAes256EcbPlainText.has_value());
+    REQUIRE_FALSE(plainText.has_value());
+}
+
+TEST_CASE("Decrypt cipher text with invalid cipher block mode of operation fails")
+{
+    Cryptography crypto;
+    Key key{50, TestVectors::keyData};
+    uint8_t invalidMode = 0xFF;
+
+    auto plainText = crypto.aes256Decrypt(key, TestVectors::plainText, static_cast<AesMode>(invalidMode));
+
+    REQUIRE_FALSE(plainText.has_value());
 }
 
 TEST_CASE("Encrypt/decrypt success - AES256")
@@ -129,13 +191,29 @@ TEST_CASE("Encrypt/decrypt success - AES256")
     Cryptography crypto;
     Key key{33, TestVectors::keyData};
 
-    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
+    SECTION("ECB Mode")
+    {
+        auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
 
-    REQUIRE(actualAes256EcbCipherText.has_value());
-    REQUIRE(actualAes256EcbCipherText == TestVectors::expectedAes256EcbCipherText);
+        REQUIRE(actualAes256EcbCipherText.has_value());
+        REQUIRE(actualAes256EcbCipherText == TestVectors::expectedAes256EcbCipherText_KeyData);
 
-    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText, AesMode::ECB);
+        auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText_KeyData, AesMode::ECB);
 
-    REQUIRE(actualAes256EcbPlainText.has_value());
-    REQUIRE(actualAes256EcbPlainText == TestVectors::plainText);
+        REQUIRE(actualAes256EcbPlainText.has_value());
+        REQUIRE(actualAes256EcbPlainText == TestVectors::plainText);
+    }
+
+    SECTION("CBC Mode")
+    {
+        auto actualAes256CbcCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::CBC);
+
+        REQUIRE(actualAes256CbcCipherText.has_value());
+        REQUIRE(actualAes256CbcCipherText == TestVectors::expectedAes256CbcCipherText_KeyData);
+
+        auto actualAes256CbcPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256CbcCipherText_KeyData, AesMode::CBC);
+
+        REQUIRE(actualAes256CbcPlainText.has_value());
+        REQUIRE(actualAes256CbcPlainText == TestVectors::plainText);
+    }
 }

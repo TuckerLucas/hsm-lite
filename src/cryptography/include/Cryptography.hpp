@@ -19,7 +19,8 @@ enum class HashAlgorithm
 
 enum class AesMode
 {
-    ECB
+    ECB,
+    CBC
 };
 
 class Cryptography

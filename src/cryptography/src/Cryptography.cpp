@@ -92,42 +92,93 @@ optional<vector<uint8_t>> Cryptography::aes256Encrypt(const Key& key, const vect
     int len = 0;
     int cipherTextLen = 0;
 
-    // Init AES-256-ECB encryption
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_ecb(), nullptr, key.data.data(), nullptr) != 1) 
+    switch(aesMode)
     {
-        EVP_CIPHER_CTX_free(ctx);
-        return nullopt;
+        case AesMode::ECB:
+
+            // Init AES-256-ECB encryption
+            if (EVP_EncryptInit_ex(ctx, EVP_aes_256_ecb(), nullptr, key.data.data(), nullptr) != 1) 
+            {
+                EVP_CIPHER_CTX_free(ctx);
+                return nullopt;
+            }
+
+            // Disable padding for deterministic output
+            EVP_CIPHER_CTX_set_padding(ctx, 0);
+
+            // Encrypt data
+            if (EVP_EncryptUpdate(ctx, cipherText.data(), &len, plainText.data(), plainText.size()) != 1) 
+            {
+                EVP_CIPHER_CTX_free(ctx);
+                return nullopt;
+            }
+
+            cipherTextLen = len;
+
+            // Finalize encryption
+            if (EVP_EncryptFinal_ex(ctx, cipherText.data() + len, &len) != 1) 
+            {
+                EVP_CIPHER_CTX_free(ctx);
+                return nullopt;
+            }
+
+            cipherTextLen += len;
+
+            EVP_CIPHER_CTX_free(ctx);
+
+            // Double-check we got exactly 32 bytes
+            if (cipherTextLen != 32) 
+            {
+                return nullopt;
+            }
+
+            break;
+
+        case AesMode::CBC:
+            
+            // Init AES-256-CBC encryption
+            if (EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key.data.data(), nullptr) != 1) 
+            {
+                EVP_CIPHER_CTX_free(ctx);
+                return nullopt;
+            }
+
+            // Disable padding for deterministic output
+            EVP_CIPHER_CTX_set_padding(ctx, 0);
+
+            // Encrypt data
+            if (EVP_EncryptUpdate(ctx, cipherText.data(), &len, plainText.data(), plainText.size()) != 1) 
+            {
+                EVP_CIPHER_CTX_free(ctx);
+                return nullopt;
+            }
+
+            cipherTextLen = len;
+
+            // Finalize encryption
+            if (EVP_EncryptFinal_ex(ctx, cipherText.data() + len, &len) != 1) 
+            {
+                EVP_CIPHER_CTX_free(ctx);
+                return nullopt;
+            }
+
+            cipherTextLen += len;
+
+            EVP_CIPHER_CTX_free(ctx);
+
+            // Double-check we got exactly 32 bytes
+            if (cipherTextLen != 32) 
+            {
+                return nullopt;
+            }
+
+            break;
+        
+        default:
+
+            return nullopt;
     }
-
-    // Disable padding for deterministic output
-    EVP_CIPHER_CTX_set_padding(ctx, 0);
-
-    // Encrypt data
-    if (EVP_EncryptUpdate(ctx, cipherText.data(), &len, plainText.data(), plainText.size()) != 1) 
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        return nullopt;
-    }
-
-    cipherTextLen = len;
-
-    // Finalize encryption
-    if (EVP_EncryptFinal_ex(ctx, cipherText.data() + len, &len) != 1) 
-    {
-        EVP_CIPHER_CTX_free(ctx);
-        return nullopt;
-    }
-
-    cipherTextLen += len;
-
-    EVP_CIPHER_CTX_free(ctx);
-
-    // Double-check we got exactly 32 bytes
-    if (cipherTextLen != 32) 
-    {
-        return nullopt;
-    }
-
+    
     return cipherText;
 }
 
@@ -152,29 +203,69 @@ std::optional<vector<uint8_t>> Cryptography::aes256Decrypt(const Key& key, const
 
     bool success = true;
 
-    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_ecb(), nullptr, key.data.data(), nullptr) != 1)
+    switch(aesMode)
     {
-        success = false;
+        case AesMode::ECB:
+
+            if (EVP_DecryptInit_ex(ctx, EVP_aes_256_ecb(), nullptr, key.data.data(), nullptr) != 1)
+            {
+                success = false;
+            }
+
+            // Disable padding (we want raw block)
+            EVP_CIPHER_CTX_set_padding(ctx, 0);
+
+            if (success && EVP_DecryptUpdate(ctx,
+                                            plainText.data(),
+                                            &outLen1,
+                                            cipherText.data(),
+                                            static_cast<int>(cipherText.size())) != 1)
+            {
+                success = false;
+            }
+
+            if (success && EVP_DecryptFinal_ex(ctx, plainText.data() + outLen1, &outLen2) != 1)
+            {
+                success = false;
+            }
+
+            EVP_CIPHER_CTX_free(ctx);
+
+            break;
+
+        case AesMode::CBC:
+
+            if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), nullptr, key.data.data(), nullptr) != 1)
+            {
+                success = false;
+            }
+
+            // Disable padding (we want raw block)
+            EVP_CIPHER_CTX_set_padding(ctx, 0);
+
+            if (success && EVP_DecryptUpdate(ctx,
+                                            plainText.data(),
+                                            &outLen1,
+                                            cipherText.data(),
+                                            static_cast<int>(cipherText.size())) != 1)
+            {
+                success = false;
+            }
+
+            if (success && EVP_DecryptFinal_ex(ctx, plainText.data() + outLen1, &outLen2) != 1)
+            {
+                success = false;
+            }
+
+            EVP_CIPHER_CTX_free(ctx);
+
+            break;
+        
+        default:
+
+            success = false;
+            break;
     }
-
-    // Disable padding (we want raw block)
-    EVP_CIPHER_CTX_set_padding(ctx, 0);
-
-    if (success && EVP_DecryptUpdate(ctx,
-                                     plainText.data(),
-                                     &outLen1,
-                                     cipherText.data(),
-                                     static_cast<int>(cipherText.size())) != 1)
-    {
-        success = false;
-    }
-
-    if (success && EVP_DecryptFinal_ex(ctx, plainText.data() + outLen1, &outLen2) != 1)
-    {
-        success = false;
-    }
-
-    EVP_CIPHER_CTX_free(ctx);
 
     if (!success)
     {
