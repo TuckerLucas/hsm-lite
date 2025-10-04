@@ -66,7 +66,7 @@ optional<vector<uint8_t>> Cryptography::hashKey(Key key, HashAlgorithm hashAlgor
     return hash;
 }
 
-optional<vector<uint8_t>> Cryptography::aes256Encrypt(const Key& key, const vector<uint8_t>& plainText)
+optional<vector<uint8_t>> Cryptography::aes256Encrypt(const Key& key, const vector<uint8_t>& plainText, AesMode aesMode)
 {
     if(key.isEmpty())
     {
@@ -131,7 +131,7 @@ optional<vector<uint8_t>> Cryptography::aes256Encrypt(const Key& key, const vect
     return cipherText;
 }
 
-std::optional<vector<uint8_t>> Cryptography::aes256Decrypt(const Key& key, const vector<uint8_t>& cipherText)
+std::optional<vector<uint8_t>> Cryptography::aes256Decrypt(const Key& key, const vector<uint8_t>& cipherText, AesMode aesMode)
 {
     if (Key::isEmpty(key.data))
     {

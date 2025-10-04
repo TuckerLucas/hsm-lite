@@ -87,7 +87,7 @@ TEST_CASE("Encrypt plain text successful - AES256")
     Cryptography crypto;
     Key key{76, TestVectors::keyData};
 
-    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText);
+    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
 
     REQUIRE(actualAes256EcbCipherText.has_value());
     REQUIRE(actualAes256EcbCipherText == TestVectors::expectedAes256EcbCipherText);
@@ -98,7 +98,7 @@ TEST_CASE("Encrypt plain text with empty key fails")
     Cryptography crypto;
     Key key{7, TestVectors::allZeroKeyData};
 
-    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText);
+    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
 
     REQUIRE_FALSE(actualAes256EcbCipherText.has_value());
 }
@@ -108,7 +108,7 @@ TEST_CASE("Decrypt cipher text successful - AES256")
     Cryptography crypto;
     Key key{76, TestVectors::keyData};
 
-    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText);
+    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText, AesMode::ECB);
 
     REQUIRE(actualAes256EcbPlainText.has_value());
     REQUIRE(actualAes256EcbPlainText == TestVectors::plainText);
@@ -119,7 +119,7 @@ TEST_CASE("Decrypt cipher text with empty key fails - AES256")
     Cryptography crypto;
     Key key{76, TestVectors::allZeroKeyData};
 
-    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText);
+    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText, AesMode::ECB);
 
     REQUIRE_FALSE(actualAes256EcbPlainText.has_value());
 }
@@ -129,12 +129,12 @@ TEST_CASE("Encrypt/decrypt success - AES256")
     Cryptography crypto;
     Key key{33, TestVectors::keyData};
 
-    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText);
+    auto actualAes256EcbCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::ECB);
 
     REQUIRE(actualAes256EcbCipherText.has_value());
     REQUIRE(actualAes256EcbCipherText == TestVectors::expectedAes256EcbCipherText);
 
-    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText);
+    auto actualAes256EcbPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256EcbCipherText, AesMode::ECB);
 
     REQUIRE(actualAes256EcbPlainText.has_value());
     REQUIRE(actualAes256EcbPlainText == TestVectors::plainText);
