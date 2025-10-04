@@ -12,6 +12,18 @@ TEST_CASE("Hash key successful")
     Key key1{1, TestVectors::keyData1};
     Key key2{2, TestVectors::keyData2};
     
+    SECTION("SHA224")
+    {
+        auto actualSha224Hash_KeyData1 = crypto.hashKey(key1, HashAlgorithm::SHA224);
+        auto actualSha224Hash_KeyData2 = crypto.hashKey(key2, HashAlgorithm::SHA224);
+
+        REQUIRE(actualSha224Hash_KeyData1.has_value());
+        REQUIRE(actualSha224Hash_KeyData2.has_value());
+
+        REQUIRE(actualSha224Hash_KeyData1 == TestVectors::expectedSha224Hash_KeyData1);
+        REQUIRE(actualSha224Hash_KeyData2 == TestVectors::expectedSha224Hash_KeyData2);
+    }
+
     SECTION("SHA256")
     {
         auto actualSha256Hash_KeyData1 = crypto.hashKey(key1, HashAlgorithm::SHA256);
@@ -22,6 +34,18 @@ TEST_CASE("Hash key successful")
 
         REQUIRE(actualSha256Hash_KeyData1 == TestVectors::expectedSha256Hash_KeyData1);
         REQUIRE(actualSha256Hash_KeyData2 == TestVectors::expectedSha256Hash_KeyData2);
+    }
+
+    SECTION("SHA384")
+    {
+        auto actualSha384Hash_KeyData1 = crypto.hashKey(key1, HashAlgorithm::SHA384);
+        auto actualSha384Hash_KeyData2 = crypto.hashKey(key2, HashAlgorithm::SHA384);
+
+        REQUIRE(actualSha384Hash_KeyData1.has_value());
+        REQUIRE(actualSha384Hash_KeyData2.has_value());
+
+        REQUIRE(actualSha384Hash_KeyData1 == TestVectors::expectedSha384Hash_KeyData1);
+        REQUIRE(actualSha384Hash_KeyData2 == TestVectors::expectedSha384Hash_KeyData2);
     }
 
     SECTION("SHA512")
@@ -51,7 +75,7 @@ TEST_CASE("Hash key with invalid algorithm fails")
 {
     Cryptography crypto;
     Key key{200, TestVectors::keyData1};
-    uint8_t invalidHashAlgorithm = 2U;
+    uint8_t invalidHashAlgorithm = 0xFF;
 
     auto actualHashKeyData = crypto.hashKey(key, static_cast<HashAlgorithm>(invalidHashAlgorithm));
 
