@@ -3,6 +3,7 @@
 #include "Key.hpp"
 #include "StatusCode.hpp"
 
+#include <memory>
 #include <vector>
 #include <array>
 #include <optional>
@@ -24,6 +25,12 @@ enum class AesMode
     CTR
 };
 
+enum class CipherOperation
+{
+    Encrypt,
+    Decrypt
+};
+
 class Cryptography
 {
 public: 
@@ -32,4 +39,6 @@ public:
     optional<vector<uint8_t>> aes256Encrypt(const Key& key, const vector<uint8_t>& plainText, AesMode aesMode);
 
     optional<vector<uint8_t>> aes256Decrypt(const Key& key, const vector<uint8_t>& cipherText, AesMode aesMode);
+private:
+    optional<vector<uint8_t>> aes256Crypt(const Key& key, const vector<uint8_t>& input, AesMode aesMode, CipherOperation cipherOperation);
 };
