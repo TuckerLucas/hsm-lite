@@ -111,6 +111,18 @@ TEST_CASE("Encrypt plain text successful - AES256")
         REQUIRE(actualAes256CbcCipherText_KeyData == TestVectors::expectedAes256CbcCipherText_KeyData);
         REQUIRE(actualAes256CbcCipherText_KeyData1 == TestVectors::expectedAes256CbcCipherText_KeyData1);        
     }
+
+    SECTION("CTR Mode")
+    {
+        auto actualAes256CtrCipherText_KeyData = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::CTR);
+        auto actualAes256CtrCipherText_KeyData1 = crypto.aes256Encrypt(key1, TestVectors::plainText, AesMode::CTR);
+
+        REQUIRE(actualAes256CtrCipherText_KeyData.has_value());
+        REQUIRE(actualAes256CtrCipherText_KeyData1.has_value()); 
+        
+        REQUIRE(actualAes256CtrCipherText_KeyData == TestVectors::expectedAes256CtrCipherText_KeyData);
+        REQUIRE(actualAes256CtrCipherText_KeyData1 == TestVectors::expectedAes256CtrCipherText_KeyData1); 
+    }
 }
 
 TEST_CASE("Encrypt plain text with empty key fails")
@@ -162,6 +174,18 @@ TEST_CASE("Decrypt cipher text successful - AES256")
 
         REQUIRE(actualAes256CbcPlainText_KeyData == TestVectors::plainText);
         REQUIRE(actualAes256CbcPlainText_KeyData1 == TestVectors::plainText);
+    }
+
+    SECTION("CTR Mode")
+    {
+        auto actualAes256CtrPlainText_KeyData = crypto.aes256Decrypt(key, TestVectors::expectedAes256CtrCipherText_KeyData, AesMode::CTR);
+        auto actualAes256CtrPlainText_KeyData1 = crypto.aes256Decrypt(key1, TestVectors::expectedAes256CtrCipherText_KeyData1, AesMode::CTR);
+
+        REQUIRE(actualAes256CtrPlainText_KeyData.has_value());
+        REQUIRE(actualAes256CtrPlainText_KeyData1.has_value());
+
+        REQUIRE(actualAes256CtrPlainText_KeyData == TestVectors::plainText);
+        REQUIRE(actualAes256CtrPlainText_KeyData1 == TestVectors::plainText);
     }
 }
 
@@ -215,5 +239,18 @@ TEST_CASE("Encrypt/decrypt success - AES256")
 
         REQUIRE(actualAes256CbcPlainText.has_value());
         REQUIRE(actualAes256CbcPlainText == TestVectors::plainText);
+    }
+
+    SECTION("CTR Mode")
+    {
+        auto actualAes256CtrCipherText = crypto.aes256Encrypt(key, TestVectors::plainText, AesMode::CTR);
+
+        REQUIRE(actualAes256CtrCipherText.has_value());
+        REQUIRE(actualAes256CtrCipherText == TestVectors::expectedAes256CtrCipherText_KeyData);
+
+        auto actualAes256CtrPlainText = crypto.aes256Decrypt(key, TestVectors::expectedAes256CtrCipherText_KeyData, AesMode::CTR);
+
+        REQUIRE(actualAes256CtrPlainText.has_value());
+        REQUIRE(actualAes256CtrPlainText == TestVectors::plainText);
     }
 }
