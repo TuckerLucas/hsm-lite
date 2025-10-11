@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CryptoCommon.hpp"
 #include "Key.hpp"
 #include "StatusCode.hpp"
 
@@ -9,27 +10,6 @@
 #include <optional>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
-
-enum class HashAlgorithm
-{
-    SHA224,
-    SHA256,
-    SHA384,
-    SHA512
-};
-
-enum class AesMode
-{
-    ECB,
-    CBC,
-    CTR
-};
-
-enum class CipherOperation
-{
-    Encrypt,
-    Decrypt
-};
 
 class Cryptography
 {
