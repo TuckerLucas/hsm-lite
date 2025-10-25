@@ -1,5 +1,11 @@
 #pragma once
 
+#include <array>
+
+using namespace std;
+
+using IV = array<uint8_t, 16>;
+
 enum class HashAlgorithm
 {
     SHA224,
