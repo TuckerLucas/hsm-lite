@@ -66,30 +66,63 @@ optional<vector<uint8_t>> Cryptography::hashKey(Key key, HashAlgorithm hashAlgor
     return hash;
 }
 
-optional<vector<uint8_t>> Cryptography::aes256Encrypt(const Key& key, const vector<uint8_t>& plainText, AesMode aesMode, array<uint8_t, 16> iv)
+optional<vector<uint8_t>> Cryptography::aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, array<uint8_t, 16> iv)
 {
-    return aes256Crypt(key, plainText, aesMode, CipherOperation::Encrypt, iv);
+    return aesCrypt(key, plainText, aesKeySize, aesMode, CipherOperation::Encrypt, iv);
 }
 
-optional<vector<uint8_t>> Cryptography::aes256Decrypt(const Key& key, const vector<uint8_t>& cipherText, AesMode aesMode, array<uint8_t, 16> iv)
+optional<vector<uint8_t>> Cryptography::aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, array<uint8_t, 16> iv)
 {
-    return aes256Crypt(key, cipherText, aesMode, CipherOperation::Decrypt, iv);
+    return aesCrypt(key, cipherText, aesKeySize, aesMode, CipherOperation::Decrypt, iv);
 }
 
-optional<vector<uint8_t>> Cryptography::aes256Crypt(const Key& key, const vector<uint8_t>& input, AesMode aesMode, CipherOperation cipherOperation, array<uint8_t, 16> iv)
+optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aesKeySize, AesMode aesMode, CipherOperation cipherOperation, array<uint8_t, 16> iv)
 {
-    if (key.isEmpty() || key.data.size() != 32)
+    if (key.isEmpty())
     {
         return nullopt;
     }
    
     const EVP_CIPHER* cipher = nullptr;
 
-    switch (aesMode)
+    switch (aesKeySize)
     {
-        case AesMode::ECB: cipher = EVP_aes_256_ecb(); break;
-        case AesMode::CBC: cipher = EVP_aes_256_cbc(); break;
-        case AesMode::CTR: cipher = EVP_aes_256_ctr(); break;
+        case AesKeySize::AES128: 
+        
+            switch (aesMode)
+            {
+                case AesMode::ECB: cipher = EVP_aes_128_ecb(); break;
+                case AesMode::CBC: cipher = EVP_aes_128_cbc(); break;
+                case AesMode::CTR: cipher = EVP_aes_128_ctr(); break;
+                default: return nullopt;
+            }
+        
+            break;
+
+        case AesKeySize::AES192: 
+        
+            switch (aesMode)
+            {
+                case AesMode::ECB: cipher = EVP_aes_192_ecb(); break;
+                case AesMode::CBC: cipher = EVP_aes_192_cbc(); break;
+                case AesMode::CTR: cipher = EVP_aes_192_ctr(); break;
+                default: return nullopt;
+            }
+        
+            break;
+
+        case AesKeySize::AES256:
+
+            switch (aesMode)
+            {
+                case AesMode::ECB: cipher = EVP_aes_256_ecb(); break;
+                case AesMode::CBC: cipher = EVP_aes_256_cbc(); break;
+                case AesMode::CTR: cipher = EVP_aes_256_ctr(); break;
+                default: return nullopt;
+            }
+
+            break;
+
         default: return nullopt;
     }
 
@@ -97,7 +130,9 @@ optional<vector<uint8_t>> Cryptography::aes256Crypt(const Key& key, const vector
     auto ctx = unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)>(EVP_CIPHER_CTX_new(), &EVP_CIPHER_CTX_free);
 
     if (!ctx)
+    {
         return nullopt;
+    }
 
     const unsigned char* ivPtr = nullptr;
 

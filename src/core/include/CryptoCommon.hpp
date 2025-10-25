@@ -14,6 +14,13 @@ enum class HashAlgorithm
     SHA512
 };
 
+enum class AesKeySize
+{
+    AES128 = 128,
+    AES192 = 192,
+    AES256 = 256
+};
+
 enum class AesMode
 {
     ECB,

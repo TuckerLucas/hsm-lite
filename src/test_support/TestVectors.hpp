@@ -137,6 +137,49 @@ public:
                                                                               0x13, 0x6f, 0x81, 0x57, 0x1f, 0x22, 0x2e, 0x24, 
                                                                               0x0c, 0xa9, 0x1c, 0x90, 0x30, 0xfa, 0xb1, 0x79, 
                                                                               0xb2, 0x9b, 0xa2, 0xfb, 0x6b, 0xbd, 0x68, 0xfc};
+    
+    inline static const vector<uint8_t> keyData3 = {0x12, 0x48, 0x96, 0xAD, 0x18, 0x11, 0x21, 0xA1,
+                                                    0x14, 0x22, 0xAF, 0xB3, 0x1C, 0xC1, 0x31, 0x06};
+
+    // https://cyberchef.io/#recipe=AES_Encrypt(%7B'option':'Hex','string':'0x12,%200x48,%200x96,%200xAD,%200x18,%200x11,%200x21,%200xA1,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200x14,%200x22,%200xAF,%200xB3,%200x1C,%200xC1,%200x31,%200x06'%7D,%7B'option':'Hex','string':'111111111111111111111111111111111'%7D,'ECB','Hex','Hex',%7B'option':'Hex','string':''%7D)&input=MHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRg
+    inline static const vector<uint8_t> expectedAes128EcbCipherText_KeyData3 {0xd1, 0x81, 0x67, 0x36, 0x89, 0x0a, 0x6b, 0x49, 
+                                                                              0xb6, 0x2e, 0xa7, 0xbc, 0x88, 0xfa, 0x5a, 0x1b, 
+                                                                              0xd1, 0x81, 0x67, 0x36, 0x89, 0x0a, 0x6b, 0x49, 
+                                                                              0xb6, 0x2e, 0xa7, 0xbc, 0x88, 0xfa, 0x5a, 0x1b};
+
+    // https://cyberchef.io/#recipe=AES_Encrypt(%7B'option':'Hex','string':'0x12,%200x48,%200x96,%200xAD,%200x18,%200x11,%200x21,%200xA1,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200x14,%200x22,%200xAF,%200xB3,%200x1C,%200xC1,%200x31,%200x06'%7D,%7B'option':'Hex','string':'111111111111111111111111111111111'%7D,'CBC','Hex','Hex',%7B'option':'Hex','string':''%7D)&input=MHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRg
+    inline static const vector<uint8_t> expectedAes128CbcCipherText_KeyData3 {0xa4, 0xd6, 0x09, 0x68, 0xf6, 0x59, 0x21, 0x24, 
+                                                                              0x77, 0x53, 0x1c, 0x01, 0xed, 0x02, 0x80, 0xce, 
+                                                                              0x83, 0x3a, 0xa9, 0x60, 0xac, 0x66, 0xbe, 0xf5, 
+                                                                              0xca, 0x31, 0xa7, 0x53, 0xae, 0xb3, 0xb9, 0xda};
+
+    // https://cyberchef.io/#recipe=AES_Encrypt(%7B'option':'Hex','string':'0x12,%200x48,%200x96,%200xAD,%200x18,%200x11,%200x21,%200xA1,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200x14,%200x22,%200xAF,%200xB3,%200x1C,%200xC1,%200x31,%200x06'%7D,%7B'option':'Hex','string':'111111111111111111111111111111111'%7D,'CTR','Hex','Hex',%7B'option':'Hex','string':''%7D)&input=MHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRg
+    inline static const vector<uint8_t> expectedAes128CtrCipherText_KeyData3 {0x78, 0x08, 0xef, 0xd0, 0x82, 0x64, 0xd8, 0x0d, 
+                                                                              0xb6, 0xd6, 0x1d, 0x6c, 0x89, 0x6d, 0xc5, 0xde, 
+                                                                              0x97, 0x61, 0x7c, 0x27, 0x7b, 0x9c, 0xb1, 0x56, 
+                                                                              0x94, 0xb6, 0xc0, 0xa6, 0xd3, 0x2c, 0xd3, 0x6d};
+
+    inline static const vector<uint8_t> keyData4 = {0x01, 0x00, 0x56, 0xDD, 0x18, 0x31, 0x21, 0xF1,
+                                                    0x14, 0x32, 0xAF, 0xB3, 0x1C, 0xC1, 0x77, 0x06,
+                                                    0xAB, 0xC2, 0xDF, 0xBE, 0xCC, 0xF1, 0x17, 0xF6};
+    
+    // https://cyberchef.io/#recipe=AES_Encrypt(%7B'option':'Hex','string':'0x01,%200x00,%200x56,%200xDD,%200x18,%200x31,%200x21,%200xF1,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200x14,%200x32,%200xAF,%200xB3,%200x1C,%200xC1,%200x77,%200x06,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200xAB,%200xC2,%200xDF,%200xBE,%200xCC,%200xF1,%200x17,%200xF6'%7D,%7B'option':'Hex','string':'111111111111111111111111111111111'%7D,'ECB','Hex','Hex',%7B'option':'Hex','string':''%7D)&input=MHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRg
+    inline static const vector<uint8_t> expectedAes192EcbCipherText_KeyData4 {0xc9, 0xb6, 0xd2, 0xab, 0xef, 0x2a, 0x69, 0x5c, 
+                                                                              0xcb, 0xa3, 0x45, 0xe2, 0xb6, 0xd5, 0x53, 0xd3, 
+                                                                              0xc9, 0xb6, 0xd2, 0xab, 0xef, 0x2a, 0x69, 0x5c, 
+                                                                              0xcb, 0xa3, 0x45, 0xe2, 0xb6, 0xd5, 0x53, 0xd3};
+
+    // https://cyberchef.io/#recipe=AES_Encrypt(%7B'option':'Hex','string':'0x01,%200x00,%200x56,%200xDD,%200x18,%200x31,%200x21,%200xF1,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200x14,%200x32,%200xAF,%200xB3,%200x1C,%200xC1,%200x77,%200x06,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200xAB,%200xC2,%200xDF,%200xBE,%200xCC,%200xF1,%200x17,%200xF6'%7D,%7B'option':'Hex','string':'111111111111111111111111111111111'%7D,'CBC','Hex','Hex',%7B'option':'Hex','string':''%7D)&input=MHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRg
+    inline static const vector<uint8_t> expectedAes192CbcCipherText_KeyData4 {0x27, 0xa9, 0x59, 0x12, 0xda, 0xba, 0x22, 0xf6, 
+                                                                              0x0d, 0x9c, 0x3e, 0x2c, 0x6e, 0x52, 0x3f, 0xf4, 
+                                                                              0xa0, 0xa6, 0x6a, 0x9b, 0x21, 0x58, 0x00, 0xf9, 
+                                                                              0x5e, 0x5e, 0x6e, 0x15, 0x92, 0x7a, 0xef, 0x41};
+
+    // https://cyberchef.io/#recipe=AES_Encrypt(%7B'option':'Hex','string':'0x01,%200x00,%200x56,%200xDD,%200x18,%200x31,%200x21,%200xF1,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200x14,%200x32,%200xAF,%200xB3,%200x1C,%200xC1,%200x77,%200x06,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%200xAB,%200xC2,%200xDF,%200xBE,%200xCC,%200xF1,%200x17,%200xF6'%7D,%7B'option':'Hex','string':'111111111111111111111111111111111'%7D,'CTR','Hex','Hex',%7B'option':'Hex','string':''%7D)&input=MHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRiwgMHgwMSwgMHgyMywgMHg0NSwgMHg2NywgMHg4OSwgMHhBQiwgMHhDRCwgMHhFRg
+    inline static const vector<uint8_t> expectedAes192CtrCipherText_KeyData4 {0xab, 0xeb, 0xab, 0x56, 0x77, 0x99, 0x73, 0x10, 
+                                                                              0x77, 0x16, 0x2b, 0x73, 0x1f, 0xed, 0x49, 0x8a, 
+                                                                              0x81, 0x58, 0xb0, 0x91, 0x31, 0x1c, 0x58, 0xe8, 
+                                                                              0x65, 0x93, 0x87, 0x2e, 0xbc, 0x42, 0x48, 0xdb};
 
     inline static const IV iv_all_ones = {0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
                                           0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11};
