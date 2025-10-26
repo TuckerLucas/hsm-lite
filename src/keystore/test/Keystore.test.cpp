@@ -35,7 +35,7 @@ TEST_CASE("Update non-existent key")
     Keystore keystore;
     Key key{10};
 
-    REQUIRE(keystore.updateKey(key.id, TestVectors::keyData) == StatusCode::InvalidKeyId);
+    REQUIRE(keystore.updateKey(key.id, TestVectors::keyData32B) == StatusCode::InvalidKeyId);
 }
 
 TEST_CASE("Inject invalid key id")
@@ -60,7 +60,7 @@ TEST_CASE("Inject key successful")
 {
     Keystore keystore;
     Cryptography crypto;
-    Key injectedKey{23, TestVectors::keyData};
+    Key injectedKey{23, TestVectors::keyData32B};
 
     REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
@@ -70,7 +70,7 @@ TEST_CASE("Inject key successful")
     auto actualHashKeyData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashKeyData.has_value());
-    REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_KeyData);
+    REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_keyData32B);
 }
 
 TEST_CASE("Inject key successful, key ID boundary check")
@@ -80,7 +80,7 @@ TEST_CASE("Inject key successful, key ID boundary check")
     Key injectedKey;
 
     injectedKey.id = std::numeric_limits<KeyId>::max();
-    injectedKey.data = TestVectors::keyData;
+    injectedKey.data = TestVectors::keyData32B;
 
     REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
@@ -90,14 +90,14 @@ TEST_CASE("Inject key successful, key ID boundary check")
     auto actualHashKeyData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashKeyData.has_value());
-    REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_KeyData);
+    REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_keyData32B);
 }
 
 TEST_CASE("Number of keys increases after injection")
 {
     Keystore keystore;
     Key key{};
-    key.data = TestVectors::keyData;
+    key.data = TestVectors::keyData32B;
 
     uint8_t nInjectedKeys = 23;
 
@@ -113,7 +113,7 @@ TEST_CASE("Number of keys increases after injection")
 TEST_CASE("Inject duplicate key fails")
 {
     Keystore keystore;
-    Key key{150, TestVectors::keyData};
+    Key key{150, TestVectors::keyData32B};
 
     REQUIRE(keystore.injectKey(key) == StatusCode::Success);
     REQUIRE(keystore.injectKey(key) == StatusCode::DuplicateKeyId);
@@ -123,7 +123,7 @@ TEST_CASE("Inject when keystore full fails")
 {
     Keystore keystore;
     Key key;
-    key.data = TestVectors::keyData;
+    key.data = TestVectors::keyData32B;
 
     for(auto id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
     {
@@ -141,7 +141,7 @@ TEST_CASE("Get key after injection successful")
 {
     Keystore keystore;
     KeyId injectedKeyId = 42U;
-    Key injectedKey{injectedKeyId, TestVectors::keyData};
+    Key injectedKey{injectedKeyId, TestVectors::keyData32B};
 
     REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
@@ -154,7 +154,7 @@ TEST_CASE("Get key after injection successful")
 TEST_CASE("Erase key after injection successful")
 {
     Keystore keystore;
-    Key injectedKey{10U, TestVectors::keyData};
+    Key injectedKey{10U, TestVectors::keyData32B};
 
     REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
@@ -169,7 +169,7 @@ TEST_CASE("Erase key when keystore full successful")
     Keystore keystore;
     Key injectedKey;
 
-    injectedKey.data = TestVectors::keyData;
+    injectedKey.data = TestVectors::keyData32B;
 
     for(size_t id = 1; id <= KeystoreConstants::MaxNumKeys; id++)
     {
@@ -190,7 +190,7 @@ TEST_CASE("Number of keys after erase decreases")
 {
     Keystore keystore;
     Key key{};
-    key.data = TestVectors::keyData;
+    key.data = TestVectors::keyData32B;
 
     uint8_t nInjectedKeys = 44;
     uint8_t nErasedKeys = 11;
@@ -215,7 +215,7 @@ TEST_CASE("Update key successful")
 {
     Keystore keystore;
     Cryptography crypto;
-    Key injectedKey{39, TestVectors::keyData};
+    Key injectedKey{39, TestVectors::keyData32B};
 
     KeyData updatedData = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
                            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
@@ -243,7 +243,7 @@ TEST_CASE("Update key data succesively successful")
 {
     Keystore keystore;
     Cryptography crypto;
-    Key injectedKey{39, TestVectors::keyData};
+    Key injectedKey{39, TestVectors::keyData32B};
 
     KeyData originalUpdatedData = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
                                    0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
@@ -282,7 +282,7 @@ TEST_CASE("Update key data succesively successful")
 TEST_CASE("Update after erase fails")
 {
     Keystore keystore;
-    Key injectedKey{9, TestVectors::keyData};
+    Key injectedKey{9, TestVectors::keyData32B};
 
     KeyData updatedData = {0x01, 0x02, 0x03};
 
@@ -295,17 +295,17 @@ TEST_CASE("Update after erase fails")
 TEST_CASE("Update key with same data fails")
 {
     Keystore keystore;
-    Key injectedKey{9, TestVectors::keyData};
+    Key injectedKey{9, TestVectors::keyData32B};
 
     REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
 
-    REQUIRE(keystore.updateKey(injectedKey.id, TestVectors::keyData) == StatusCode::DuplicateKeyData);
+    REQUIRE(keystore.updateKey(injectedKey.id, TestVectors::keyData32B) == StatusCode::DuplicateKeyData);
 }
 
 TEST_CASE("Update key as empty fails")
 {
     Keystore keystore;
-    Key injectedKey{19, TestVectors::keyData};
+    Key injectedKey{19, TestVectors::keyData32B};
     KeyData emptyKeyData{};
 
     REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
@@ -317,7 +317,7 @@ TEST_CASE("New key is injected in first available slot")
 {
     Keystore keystore;
     Key key;
-    key.data = TestVectors::keyData;
+    key.data = TestVectors::keyData32B;
 
     for(size_t id = 1; id <= 10; id++)
     {
@@ -346,10 +346,10 @@ TEST_CASE("Key equality")
 {
     Keystore keystore;
     
-    Key key1{12U, TestVectors::keyData1}, 
-        key2{12U, TestVectors::keyData1}, 
-        key3{12U, TestVectors::keyData2}, 
-        key4{13U, TestVectors::keyData2};
+    Key key1{12U, TestVectors::keyData32B}, 
+        key2{12U, TestVectors::keyData32B}, 
+        key3{12U, TestVectors::keyData16B}, 
+        key4{13U, TestVectors::keyData16B};
     
     REQUIRE(key1 == key2);
     REQUIRE(key1 != key3);

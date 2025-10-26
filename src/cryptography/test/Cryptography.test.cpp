@@ -10,7 +10,7 @@ using namespace std;
 TEST_CASE("Hash key successful")
 {
     Cryptography crypto;
-    Key key1{1, TestVectors::keyData1};
+    Key key1{1, TestVectors::keyData32B};
 
     struct TestData
     {
@@ -18,10 +18,10 @@ TEST_CASE("Hash key successful")
         vector<uint8_t> expectedHash;
     };
 
-    auto testData = GENERATE(TestData{HashAlgorithm::SHA224, TestVectors::expectedSha224Hash_KeyData1},
-                             TestData{HashAlgorithm::SHA256, TestVectors::expectedSha256Hash_KeyData1},
-                             TestData{HashAlgorithm::SHA384, TestVectors::expectedSha384Hash_KeyData1},
-                             TestData{HashAlgorithm::SHA512, TestVectors::expectedSha512Hash_KeyData1});
+    auto testData = GENERATE(TestData{HashAlgorithm::SHA224, TestVectors::expectedSha224Hash_keyData32B},
+                             TestData{HashAlgorithm::SHA256, TestVectors::expectedSha256Hash_keyData32B},
+                             TestData{HashAlgorithm::SHA384, TestVectors::expectedSha384Hash_keyData32B},
+                             TestData{HashAlgorithm::SHA512, TestVectors::expectedSha512Hash_keyData32B});
 
     auto actualHash = crypto.hashKey(key1, testData.hashAlgo);
 
@@ -33,7 +33,7 @@ TEST_CASE("Hash key successful")
 TEST_CASE("Hash all zero key fails")
 {
     Cryptography crypto;
-    Key key{28, TestVectors::allZeroKeyData};
+    Key key{28, TestVectors::keyDataAllZeros};
 
     auto actualHashKeyData = crypto.hashKey(key, HashAlgorithm::SHA256);
 
@@ -43,7 +43,7 @@ TEST_CASE("Hash all zero key fails")
 TEST_CASE("Hash key with invalid algorithm fails")
 {
     Cryptography crypto;
-    Key key{200, TestVectors::keyData1};
+    Key key{200, TestVectors::keyData32B};
     uint8_t invalidHashAlgorithm = 0xFF;
 
     auto actualHashKeyData = crypto.hashKey(key, static_cast<HashAlgorithm>(invalidHashAlgorithm));
@@ -64,25 +64,25 @@ TEST_CASE("Encrypt/decrypt success")
         AesMode aesMode;
     };
 
-    auto testData = GENERATE(TestData{TestVectors::keyData3, TestVectors::expectedAes128EcbCipherText_KeyData3, AesKeySize::AES128, AesMode::ECB},
-                             TestData{TestVectors::keyData3, TestVectors::expectedAes128CbcCipherText_KeyData3, AesKeySize::AES128, AesMode::CBC},
-                             TestData{TestVectors::keyData3, TestVectors::expectedAes128CtrCipherText_KeyData3, AesKeySize::AES128, AesMode::CTR},
-                             TestData{TestVectors::keyData4, TestVectors::expectedAes192EcbCipherText_KeyData4, AesKeySize::AES192, AesMode::ECB},
-                             TestData{TestVectors::keyData4, TestVectors::expectedAes192CbcCipherText_KeyData4, AesKeySize::AES192, AesMode::CBC},
-                             TestData{TestVectors::keyData4, TestVectors::expectedAes192CtrCipherText_KeyData4, AesKeySize::AES192, AesMode::CTR},
-                             TestData{TestVectors::keyData, TestVectors::expectedAes256EcbCipherText_KeyData, AesKeySize::AES256, AesMode::ECB},
-                             TestData{TestVectors::keyData, TestVectors::expectedAes256CbcCipherText_KeyData, AesKeySize::AES256, AesMode::CBC},
-                             TestData{TestVectors::keyData, TestVectors::expectedAes256CtrCipherText_KeyData, AesKeySize::AES256, AesMode::CTR});
+    auto testData = GENERATE(TestData{TestVectors::keyData16B, TestVectors::expectedAes128EcbCipherText, AesKeySize::AES128, AesMode::ECB},
+                             TestData{TestVectors::keyData16B, TestVectors::expectedAes128CbcCipherText, AesKeySize::AES128, AesMode::CBC},
+                             TestData{TestVectors::keyData16B, TestVectors::expectedAes128CtrCipherText, AesKeySize::AES128, AesMode::CTR},
+                             TestData{TestVectors::keyData24B, TestVectors::expectedAes192EcbCipherText, AesKeySize::AES192, AesMode::ECB},
+                             TestData{TestVectors::keyData24B, TestVectors::expectedAes192CbcCipherText, AesKeySize::AES192, AesMode::CBC},
+                             TestData{TestVectors::keyData24B, TestVectors::expectedAes192CtrCipherText, AesKeySize::AES192, AesMode::CTR},
+                             TestData{TestVectors::keyData32B, TestVectors::expectedAes256EcbCipherText, AesKeySize::AES256, AesMode::ECB},
+                             TestData{TestVectors::keyData32B, TestVectors::expectedAes256CbcCipherText, AesKeySize::AES256, AesMode::CBC},
+                             TestData{TestVectors::keyData32B, TestVectors::expectedAes256CtrCipherText, AesKeySize::AES256, AesMode::CTR});
 
     key.data = testData.keyData;
 
-    auto actualCipherText = crypto.aesEncrypt(key, TestVectors::plainText, testData.aesKeySize, testData.aesMode, TestVectors::iv_all_ones);
+    auto actualCipherText = crypto.aesEncrypt(key, TestVectors::plainText, testData.aesKeySize, testData.aesMode, TestVectors::iv);
 
     REQUIRE(actualCipherText.has_value());
 
     REQUIRE(actualCipherText == testData.cipherText);
 
-    auto actualPlainText = crypto.aesDecrypt(key, testData.cipherText, testData.aesKeySize, testData.aesMode, TestVectors::iv_all_ones);
+    auto actualPlainText = crypto.aesDecrypt(key, testData.cipherText, testData.aesKeySize, testData.aesMode, TestVectors::iv);
 
     REQUIRE(actualPlainText.has_value());
 
@@ -92,9 +92,9 @@ TEST_CASE("Encrypt/decrypt success")
 TEST_CASE("Encrypt plain text with empty key fails")
 {
     Cryptography crypto;
-    Key key{7, TestVectors::allZeroKeyData};
+    Key key{7, TestVectors::keyDataAllZeros};
 
-    auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, AesKeySize::AES256, AesMode::ECB, TestVectors::iv_all_zeros);
+    auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, AesKeySize::AES256, AesMode::ECB, TestVectors::iv);
 
     REQUIRE_FALSE(cipherText.has_value());
 }
@@ -102,10 +102,10 @@ TEST_CASE("Encrypt plain text with empty key fails")
 TEST_CASE("Encrypt plain text with invalid key size fails")
 {
     Cryptography crypto;
-    Key key{66, TestVectors::keyData4};
+    Key key{66, TestVectors::keyData24B};
     uint8_t invalidKeySize = 0xFA;
 
-    auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, static_cast<AesKeySize>(invalidKeySize), AesMode::ECB, TestVectors::iv_all_zeros);
+    auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, static_cast<AesKeySize>(invalidKeySize), AesMode::ECB, TestVectors::iv);
 
     REQUIRE_FALSE(cipherText.has_value());
 }
@@ -122,22 +122,22 @@ TEST_CASE("Encrypt plain text with invalid block cipher mode of operation fails"
         AesKeySize aesKeySize;
     };
 
-    auto testData = GENERATE(TestData{TestVectors::keyData3, AesKeySize::AES128},
-                             TestData{TestVectors::keyData4, AesKeySize::AES192},
-                             TestData{TestVectors::keyData, AesKeySize::AES256});
+    auto testData = GENERATE(TestData{TestVectors::keyData16B, AesKeySize::AES128},
+                             TestData{TestVectors::keyData24B, AesKeySize::AES192},
+                             TestData{TestVectors::keyData32B, AesKeySize::AES256});
 
     key.data = testData.keyData;
 
-    auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, testData.aesKeySize, static_cast<AesMode>(invalidMode), TestVectors::iv_all_zeros);
+    auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, testData.aesKeySize, static_cast<AesMode>(invalidMode), TestVectors::iv);
     REQUIRE_FALSE(cipherText.has_value());
 }
 
 TEST_CASE("Decrypt cipher text with empty key fails - AES256")
 {
     Cryptography crypto;
-    Key key{76, TestVectors::allZeroKeyData};
+    Key key{76, TestVectors::keyDataAllZeros};
 
-    auto plainText = crypto.aesDecrypt(key, TestVectors::expectedAes256EcbCipherText_KeyData, AesKeySize::AES256, AesMode::ECB, TestVectors::iv_all_zeros);
+    auto plainText = crypto.aesDecrypt(key, TestVectors::expectedAes256EcbCipherText, AesKeySize::AES256, AesMode::ECB, TestVectors::iv);
 
     REQUIRE_FALSE(plainText.has_value());
 }
@@ -145,10 +145,10 @@ TEST_CASE("Decrypt cipher text with empty key fails - AES256")
 TEST_CASE("Decrypt cipher text with invalid cipher block mode of operation fails")
 {
     Cryptography crypto;
-    Key key{50, TestVectors::keyData};
+    Key key{50, TestVectors::keyData32B};
     uint8_t invalidMode = 0xFF;
 
-    auto plainText = crypto.aesDecrypt(key, TestVectors::plainText, AesKeySize::AES256, static_cast<AesMode>(invalidMode), TestVectors::iv_all_zeros);
+    auto plainText = crypto.aesDecrypt(key, TestVectors::plainText, AesKeySize::AES256, static_cast<AesMode>(invalidMode), TestVectors::iv);
 
     REQUIRE_FALSE(plainText.has_value());
 }
