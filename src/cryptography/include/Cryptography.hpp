@@ -16,9 +16,9 @@ class Cryptography
 public: 
     optional<vector<uint8_t>> hashKey(Key key, HashAlgorithm hashAlgorithm);
 
-    optional<vector<uint8_t>> aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, array<uint8_t, 16> iv);
+    optional<vector<uint8_t>> aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, optional<IV> iv = nullopt);
 
-    optional<vector<uint8_t>> aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, array<uint8_t, 16> iv);
+    optional<vector<uint8_t>> aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, optional<IV> iv = nullopt);
 private:
-    optional<vector<uint8_t>> aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aeskeySize, AesMode aesMode, CipherOperation cipherOperation, array<uint8_t, 16> iv);
+    optional<vector<uint8_t>> aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aeskeySize, AesMode aesMode, CipherOperation cipherOperation, optional<IV> iv);
 };

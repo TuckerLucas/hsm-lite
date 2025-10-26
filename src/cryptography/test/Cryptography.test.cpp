@@ -62,27 +62,28 @@ TEST_CASE("Encrypt/decrypt success")
         vector<uint8_t> cipherText;
         AesKeySize aesKeySize;
         AesMode aesMode;
+        optional<IV> iv;
     };
 
     auto testData = GENERATE(TestData{TestVectors::keyData16B, TestVectors::expectedAes128EcbCipherText, AesKeySize::AES128, AesMode::ECB},
-                             TestData{TestVectors::keyData16B, TestVectors::expectedAes128CbcCipherText, AesKeySize::AES128, AesMode::CBC},
-                             TestData{TestVectors::keyData16B, TestVectors::expectedAes128CtrCipherText, AesKeySize::AES128, AesMode::CTR},
+                             TestData{TestVectors::keyData16B, TestVectors::expectedAes128CbcCipherText, AesKeySize::AES128, AesMode::CBC, TestVectors::iv},
+                             TestData{TestVectors::keyData16B, TestVectors::expectedAes128CtrCipherText, AesKeySize::AES128, AesMode::CTR, TestVectors::iv},
                              TestData{TestVectors::keyData24B, TestVectors::expectedAes192EcbCipherText, AesKeySize::AES192, AesMode::ECB},
-                             TestData{TestVectors::keyData24B, TestVectors::expectedAes192CbcCipherText, AesKeySize::AES192, AesMode::CBC},
-                             TestData{TestVectors::keyData24B, TestVectors::expectedAes192CtrCipherText, AesKeySize::AES192, AesMode::CTR},
+                             TestData{TestVectors::keyData24B, TestVectors::expectedAes192CbcCipherText, AesKeySize::AES192, AesMode::CBC, TestVectors::iv},
+                             TestData{TestVectors::keyData24B, TestVectors::expectedAes192CtrCipherText, AesKeySize::AES192, AesMode::CTR, TestVectors::iv},
                              TestData{TestVectors::keyData32B, TestVectors::expectedAes256EcbCipherText, AesKeySize::AES256, AesMode::ECB},
-                             TestData{TestVectors::keyData32B, TestVectors::expectedAes256CbcCipherText, AesKeySize::AES256, AesMode::CBC},
-                             TestData{TestVectors::keyData32B, TestVectors::expectedAes256CtrCipherText, AesKeySize::AES256, AesMode::CTR});
+                             TestData{TestVectors::keyData32B, TestVectors::expectedAes256CbcCipherText, AesKeySize::AES256, AesMode::CBC, TestVectors::iv},
+                             TestData{TestVectors::keyData32B, TestVectors::expectedAes256CtrCipherText, AesKeySize::AES256, AesMode::CTR, TestVectors::iv});
 
     key.data = testData.keyData;
-
-    auto actualCipherText = crypto.aesEncrypt(key, TestVectors::plainText, testData.aesKeySize, testData.aesMode, TestVectors::iv);
+    
+    auto actualCipherText = crypto.aesEncrypt(key, TestVectors::plainText, testData.aesKeySize, testData.aesMode, testData.iv);
 
     REQUIRE(actualCipherText.has_value());
 
     REQUIRE(actualCipherText == testData.cipherText);
 
-    auto actualPlainText = crypto.aesDecrypt(key, testData.cipherText, testData.aesKeySize, testData.aesMode, TestVectors::iv);
+    auto actualPlainText = crypto.aesDecrypt(key, testData.cipherText, testData.aesKeySize, testData.aesMode, testData.iv);
 
     REQUIRE(actualPlainText.has_value());
 
@@ -129,6 +130,27 @@ TEST_CASE("Encrypt plain text with invalid block cipher mode of operation fails"
     key.data = testData.keyData;
 
     auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, testData.aesKeySize, static_cast<AesMode>(invalidMode), TestVectors::iv);
+    
+    REQUIRE_FALSE(cipherText.has_value());
+}
+
+TEST_CASE("Encrypt plain text with incorrect IV size fails")
+{
+    Cryptography crypto;
+    Key key{233, TestVectors::keyData32B};
+
+    struct TestData
+    {
+        AesMode aesMode;
+        optional<IV> iv;
+    };
+
+    auto testData = GENERATE(TestData{AesMode::ECB, TestVectors::iv},
+                             TestData{AesMode::CBC, nullopt},
+                             TestData{AesMode::CTR, nullopt});
+
+    auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, AesKeySize::AES128, testData.aesMode, testData.iv);
+
     REQUIRE_FALSE(cipherText.has_value());
 }
 

@@ -66,17 +66,17 @@ optional<vector<uint8_t>> Cryptography::hashKey(Key key, HashAlgorithm hashAlgor
     return hash;
 }
 
-optional<vector<uint8_t>> Cryptography::aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, array<uint8_t, 16> iv)
+optional<vector<uint8_t>> Cryptography::aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, optional<IV> iv)
 {
     return aesCrypt(key, plainText, aesKeySize, aesMode, CipherOperation::Encrypt, iv);
 }
 
-optional<vector<uint8_t>> Cryptography::aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, array<uint8_t, 16> iv)
+optional<vector<uint8_t>> Cryptography::aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, optional<IV> iv)
 {
     return aesCrypt(key, cipherText, aesKeySize, aesMode, CipherOperation::Decrypt, iv);
 }
 
-optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aesKeySize, AesMode aesMode, CipherOperation cipherOperation, array<uint8_t, 16> iv)
+optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aesKeySize, AesMode aesMode, CipherOperation cipherOperation, optional<IV> iv)
 {
     if (key.isEmpty())
     {
@@ -136,12 +136,26 @@ optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<ui
 
     const unsigned char* ivPtr = nullptr;
 
-    if (aesMode != AesMode::ECB)
+    if(aesMode == AesMode::ECB)
     {
-        if (iv.size() != static_cast<size_t>(EVP_CIPHER_iv_length(cipher)))
-        return nullopt;
+        if(iv.has_value())
+        {
+            return nullopt;
+        }
+    }
+    else
+    {
+        if (!iv.has_value())
+        {
+            return nullopt;
+        }
+        
+        if (iv->size() != static_cast<size_t>(EVP_CIPHER_iv_length(cipher)))
+        {
+            return nullopt;
+        }
 
-        ivPtr = iv.data();
+        ivPtr = iv->data();
     }
 
     int initStatus = (cipherOperation == CipherOperation::Encrypt)
@@ -149,7 +163,9 @@ optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<ui
         : EVP_DecryptInit_ex(ctx.get(), cipher, nullptr, key.data.data(), ivPtr);
 
     if (initStatus != 1)
+    {
         return nullopt;
+    }
 
     EVP_CIPHER_CTX_set_padding(ctx.get(), 0);
 
@@ -161,7 +177,9 @@ optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<ui
         : EVP_DecryptUpdate(ctx.get(), output.data(), &len, input.data(), input.size());
 
     if (updateStatus != 1)
+    {
         return nullopt;
+    }
 
     totalLen = len;
 
@@ -170,7 +188,9 @@ optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<ui
         : EVP_DecryptFinal_ex(ctx.get(), output.data() + len, &len);
 
     if (finalStatus != 1)
+    {
         return nullopt;
+    }
 
     totalLen += len;
     output.resize(totalLen);
