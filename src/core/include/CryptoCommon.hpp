@@ -29,6 +29,12 @@ enum class AesMode
     CTR
 };
 
+enum class PaddingMode
+{
+    None,
+    PKCS7
+};
+
 enum class CipherOperation
 {
     Encrypt,

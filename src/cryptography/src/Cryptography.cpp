@@ -66,17 +66,17 @@ optional<vector<uint8_t>> Cryptography::hashKey(Key key, HashAlgorithm hashAlgor
     return hash;
 }
 
-optional<vector<uint8_t>> Cryptography::aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, optional<IV> iv)
+optional<vector<uint8_t>> Cryptography::aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, PaddingMode paddingMode, optional<IV> iv)
 {
-    return aesCrypt(key, plainText, aesKeySize, aesMode, CipherOperation::Encrypt, iv);
+    return aesCrypt(key, plainText, aesKeySize, aesMode, paddingMode, CipherOperation::Encrypt, iv);
 }
 
-optional<vector<uint8_t>> Cryptography::aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, optional<IV> iv)
+optional<vector<uint8_t>> Cryptography::aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, PaddingMode paddingMode, optional<IV> iv)
 {
-    return aesCrypt(key, cipherText, aesKeySize, aesMode, CipherOperation::Decrypt, iv);
+    return aesCrypt(key, cipherText, aesKeySize, aesMode, paddingMode, CipherOperation::Decrypt, iv);
 }
 
-optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aesKeySize, AesMode aesMode, CipherOperation cipherOperation, optional<IV> iv)
+optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aesKeySize, AesMode aesMode, PaddingMode paddingMode, CipherOperation cipherOperation, optional<IV> iv)
 {
     if (key.isEmpty())
     {
@@ -167,7 +167,10 @@ optional<vector<uint8_t>> Cryptography::aesCrypt(const Key& key, const vector<ui
         return nullopt;
     }
 
-    EVP_CIPHER_CTX_set_padding(ctx.get(), 0);
+    if(paddingMode == PaddingMode::None)
+    {
+        EVP_CIPHER_CTX_set_padding(ctx.get(), 0);
+    }
 
     vector<uint8_t> output(input.size() + EVP_CIPHER_block_size(cipher));
     int len = 0, totalLen = 0;
