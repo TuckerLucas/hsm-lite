@@ -16,9 +16,9 @@ class Cryptography
 public: 
     optional<vector<uint8_t>> hashKey(Key key, HashAlgorithm hashAlgorithm);
 
-    optional<vector<uint8_t>> aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, AesMode aesMode, PaddingMode paddingMode, optional<IV> iv = nullopt);
+    optional<vector<uint8_t>> aesEncrypt(const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, CipherMode aesMode, PaddingMode paddingMode, optional<IV> iv = nullopt);
 
-    optional<vector<uint8_t>> aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, AesMode aesMode, PaddingMode paddingMode, optional<IV> iv = nullopt);
+    optional<vector<uint8_t>> aesDecrypt(const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, CipherMode aesMode, PaddingMode paddingMode, optional<IV> iv = nullopt);
 private:
-    optional<vector<uint8_t>> aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aeskeySize, AesMode aesMode, PaddingMode paddingMode, CipherOperation cipherOperation, optional<IV> iv);
+    optional<vector<uint8_t>> aesCrypt(const Key& key, const vector<uint8_t>& input, AesKeySize aeskeySize, CipherMode aesMode, PaddingMode paddingMode, CipherOperation cipherOperation, optional<IV> iv);
 };

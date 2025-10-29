@@ -22,7 +22,7 @@ enum class AesKeySize
     AES256 = 256
 };
 
-enum class AesMode
+enum class CipherMode
 {
     ECB,
     CBC,
