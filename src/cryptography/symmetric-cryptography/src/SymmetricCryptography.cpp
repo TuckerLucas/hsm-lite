@@ -1,4 +1,4 @@
-#include "SymmetricCrypto.hpp"
+#include "SymmetricCryptography.hpp"
 
 optional<vector<uint8_t>> SymmetricCryptography::aesEncrypt(
     const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, CipherMode aesMode,

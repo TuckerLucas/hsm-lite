@@ -1,3 +1,4 @@
+add_subdirectory(asymmetric-cryptography)
 add_subdirectory(hash)
 add_subdirectory(symmetric-cryptography)
 

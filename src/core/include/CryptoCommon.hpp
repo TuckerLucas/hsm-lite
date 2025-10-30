@@ -3,6 +3,8 @@
 #include <array>
 #include <cstdint>
 
+#include "Key.hpp"
+
 using namespace std;
 
 using IV = array<uint8_t, 16>;
@@ -39,4 +41,10 @@ enum class CipherOperation
 {
     Encrypt,
     Decrypt
+};
+
+struct KeyPair
+{
+    Key privateKey{};
+    Key publicKey{};
 };

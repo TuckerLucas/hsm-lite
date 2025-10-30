@@ -1,6 +1,6 @@
 # Make the crypto library
 add_library(symmetric_crypto_lib
-    src/SymmetricCrypto.cpp
+    src/SymmetricCryptography.cpp
 )
 
 target_include_directories(symmetric_crypto_lib PUBLIC
@@ -18,7 +18,7 @@ target_link_libraries(symmetric_crypto_lib PUBLIC
 
 # Create test executable
 add_executable(symmetric_crypto_tests
-    test/SymmetricCrypto.test.cpp
+    test/SymmetricCryptography.test.cpp
 )
 
 # Link libraries + Catch2 into tests

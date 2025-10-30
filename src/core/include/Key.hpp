@@ -41,6 +41,11 @@ public:
         return true;
     }
 
+    bool isNotEmpty()
+    {
+        return !isEmpty();
+    }
+
     KeyId id = 0U;
     KeyData data{};
 };
