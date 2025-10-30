@@ -1,6 +1,7 @@
 #include "Keystore.hpp"
 
 #include <stdlib.h>
+
 #include <algorithm>
 
 using namespace std;
@@ -13,10 +14,10 @@ uint16_t Keystore::getNumKeys()
 vector<KeyId> Keystore::listKeyIds() const
 {
     vector<KeyId> ids;
-    
-    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+
+    for (size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
-        if(store[i].id != 0)
+        if (store[i].id != 0)
         {
             ids.push_back(store[i].id);
         }
@@ -27,9 +28,9 @@ vector<KeyId> Keystore::listKeyIds() const
 
 optional<Key> Keystore::getKey(KeyId keyId)
 {
-    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    for (size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
-        if(keyId == store[i].id)
+        if (keyId == store[i].id)
         {
             return store[i];
         }
@@ -44,9 +45,9 @@ optional<Key> Keystore::getKey(KeyId keyId)
 
 StatusCode Keystore::eraseKey(KeyId keyId)
 {
-    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    for (size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
-        if(keyId == store[i].id)
+        if (keyId == store[i].id)
         {
             store[i] = {};
             nKeys--;
@@ -64,16 +65,16 @@ StatusCode Keystore::eraseKey(KeyId keyId)
 
 StatusCode Keystore::updateKey(KeyId keyId, const KeyData& updatedData)
 {
-    if(Key::isEmpty(updatedData))
+    if (Key::isEmpty(updatedData))
     {
         return StatusCode::KeyDataIsEmpty;
     }
 
-    for(auto& key : store)
+    for (auto& key : store)
     {
-        if(key.id == keyId)
+        if (key.id == keyId)
         {
-            if(key.data == updatedData)
+            if (key.data == updatedData)
             {
                 return StatusCode::DuplicateKeyData;
             }
@@ -89,29 +90,29 @@ StatusCode Keystore::updateKey(KeyId keyId, const KeyData& updatedData)
 
 StatusCode Keystore::injectKey(Key key)
 {
-    if(key.id == 0)
+    if (key.id == 0)
     {
         return StatusCode::InvalidKeyId;
     }
 
-    if(nKeys == KeystoreConstants::MaxNumKeys)
+    if (nKeys == KeystoreConstants::MaxNumKeys)
     {
         return StatusCode::KeystoreFull;
     }
 
-    if(keyIdIsDuplicated(key.id))
+    if (keyIdIsDuplicated(key.id))
     {
         return StatusCode::DuplicateKeyId;
     }
 
-    if(key.isEmpty())
+    if (key.isEmpty())
     {
         return StatusCode::KeyDataIsEmpty;
     }
-    
-    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+
+    for (size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
-        if(store[i].id == 0)
+        if (store[i].id == 0)
         {
             store[i] = key;
             nKeys++;
@@ -125,9 +126,9 @@ StatusCode Keystore::injectKey(Key key)
 
 bool Keystore::keyIdIsDuplicated(KeyId keyId)
 {
-    for(size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
+    for (size_t i = 0; i < KeystoreConstants::MaxNumKeys; i++)
     {
-        if(keyId == store[i].id)
+        if (keyId == store[i].id)
         {
             return true;
         }

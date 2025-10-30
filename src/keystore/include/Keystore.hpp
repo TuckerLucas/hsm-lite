@@ -1,13 +1,13 @@
 #pragma once
 
+#include <cstdint>
+#include <optional>
+#include <vector>
+
 #include "Cryptography.hpp"
 #include "Key.hpp"
 #include "KeystoreConstants.hpp"
 #include "StatusCode.hpp"
-
-#include <cstdint>
-#include <optional>
-#include <vector>
 
 using namespace std;
 
@@ -26,9 +26,9 @@ public:
 
     StatusCode injectKey(Key key);
 
-private: 
+private:
     bool keyIdIsDuplicated(KeyId keyId);
 
     uint16_t nKeys = 0;
-    Key store[KeystoreConstants::MaxNumKeys]{}; 
+    Key store[KeystoreConstants::MaxNumKeys]{};
 };

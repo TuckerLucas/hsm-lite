@@ -1,9 +1,9 @@
 #pragma once
 
-#include "KeystoreConstants.hpp"
-
 #include <cstdint>
 #include <vector>
+
+#include "KeystoreConstants.hpp"
 
 using namespace std;
 
@@ -30,9 +30,9 @@ public:
 
     static bool isEmpty(const KeyData& data)
     {
-        for(auto byte : data)
+        for (auto byte : data)
         {
-            if(byte != 0)
+            if (byte != 0)
             {
                 return false;
             }
