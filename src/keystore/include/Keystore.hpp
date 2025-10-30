@@ -4,7 +4,7 @@
 #include <optional>
 #include <vector>
 
-#include "Cryptography.hpp"
+#include "Hash.hpp"
 #include "Key.hpp"
 #include "KeystoreConstants.hpp"
 #include "StatusCode.hpp"

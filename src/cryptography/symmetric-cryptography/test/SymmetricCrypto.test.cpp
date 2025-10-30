@@ -1,4 +1,4 @@
-#include "Cryptography.hpp"
+#include "SymmetricCrypto.hpp"
 
 #include <stdlib.h>
 
@@ -9,54 +9,9 @@
 
 using namespace std;
 
-TEST_CASE("Hash key successful")
-{
-    Cryptography crypto;
-    Key key1{1, TestVectors::keyData32B};
-
-    struct TestData
-    {
-        HashAlgorithm hashAlgo;
-        vector<uint8_t> expectedHash;
-    };
-
-    auto testData =
-        GENERATE(TestData{HashAlgorithm::SHA224, TestVectors::expectedSha224Hash_keyData32B},
-                 TestData{HashAlgorithm::SHA256, TestVectors::expectedSha256Hash_keyData32B},
-                 TestData{HashAlgorithm::SHA384, TestVectors::expectedSha384Hash_keyData32B},
-                 TestData{HashAlgorithm::SHA512, TestVectors::expectedSha512Hash_keyData32B});
-
-    auto actualHash = crypto.hashKey(key1, testData.hashAlgo);
-
-    REQUIRE(actualHash.has_value());
-
-    REQUIRE(actualHash == testData.expectedHash);
-}
-
-TEST_CASE("Hash all zero key fails")
-{
-    Cryptography crypto;
-    Key key{28, TestVectors::keyDataAllZeros};
-
-    auto actualHashKeyData = crypto.hashKey(key, HashAlgorithm::SHA256);
-
-    REQUIRE_FALSE(actualHashKeyData.has_value());
-}
-
-TEST_CASE("Hash key with invalid algorithm fails")
-{
-    Cryptography crypto;
-    Key key{200, TestVectors::keyData32B};
-    uint8_t invalidHashAlgorithm = 0xFF;
-
-    auto actualHashKeyData = crypto.hashKey(key, static_cast<HashAlgorithm>(invalidHashAlgorithm));
-
-    REQUIRE_FALSE(actualHashKeyData.has_value());
-}
-
 TEST_CASE("Encrypt/decrypt success")
 {
-    Cryptography crypto;
+    SymmetricCryptography crypto;
     Key key{33, {}};
 
     struct TestData
@@ -126,7 +81,7 @@ TEST_CASE("Encrypt/decrypt success")
 
 TEST_CASE("Encrypt plain text with empty key fails")
 {
-    Cryptography crypto;
+    SymmetricCryptography crypto;
     Key key{7, TestVectors::keyDataAllZeros};
 
     auto cipherText = crypto.aesEncrypt(key, TestVectors::plainText, AesKeySize::AES256,
@@ -137,7 +92,7 @@ TEST_CASE("Encrypt plain text with empty key fails")
 
 TEST_CASE("Encrypt plain text with invalid key size fails")
 {
-    Cryptography crypto;
+    SymmetricCryptography crypto;
     Key key{66, TestVectors::keyData24B};
     uint8_t invalidKeySize = 0xFA;
 
@@ -150,7 +105,7 @@ TEST_CASE("Encrypt plain text with invalid key size fails")
 
 TEST_CASE("Encrypt plain text with invalid block cipher mode of operation fails")
 {
-    Cryptography crypto;
+    SymmetricCryptography crypto;
     Key key{250, {}};
     uint8_t invalidMode = 0xFF;
 
@@ -175,7 +130,7 @@ TEST_CASE("Encrypt plain text with invalid block cipher mode of operation fails"
 
 TEST_CASE("Encrypt plain text with incorrect IV size fails")
 {
-    Cryptography crypto;
+    SymmetricCryptography crypto;
     Key key{233, TestVectors::keyData32B};
 
     struct TestData
@@ -196,7 +151,7 @@ TEST_CASE("Encrypt plain text with incorrect IV size fails")
 
 TEST_CASE("Decrypt cipher text with empty key fails - AES256")
 {
-    Cryptography crypto;
+    SymmetricCryptography crypto;
     Key key{76, TestVectors::keyDataAllZeros};
 
     auto plainText =
@@ -208,7 +163,7 @@ TEST_CASE("Decrypt cipher text with empty key fails - AES256")
 
 TEST_CASE("Decrypt cipher text with invalid cipher block mode of operation fails")
 {
-    Cryptography crypto;
+    SymmetricCryptography crypto;
     Key key{50, TestVectors::keyData32B};
     uint8_t invalidMode = 0xFF;
 

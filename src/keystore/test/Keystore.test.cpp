@@ -60,7 +60,7 @@ TEST_CASE("Inject empty key fails")
 TEST_CASE("Inject key successful")
 {
     Keystore keystore;
-    Cryptography crypto;
+    Hash hasher;
     Key injectedKey{23, TestVectors::keyData32B};
 
     REQUIRE(keystore.injectKey(injectedKey) == StatusCode::Success);
@@ -68,7 +68,7 @@ TEST_CASE("Inject key successful")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashKeyData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
+    auto actualHashKeyData = hasher.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashKeyData.has_value());
     REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_keyData32B);
@@ -77,7 +77,7 @@ TEST_CASE("Inject key successful")
 TEST_CASE("Inject key successful, key ID boundary check")
 {
     Keystore keystore;
-    Cryptography crypto;
+    Hash hasher;
     Key injectedKey;
 
     injectedKey.id = std::numeric_limits<KeyId>::max();
@@ -88,7 +88,7 @@ TEST_CASE("Inject key successful, key ID boundary check")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashKeyData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
+    auto actualHashKeyData = hasher.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashKeyData.has_value());
     REQUIRE(actualHashKeyData == TestVectors::expectedSha256Hash_keyData32B);
@@ -215,7 +215,7 @@ TEST_CASE("Number of keys after erase decreases")
 TEST_CASE("Update key successful")
 {
     Keystore keystore;
-    Cryptography crypto;
+    Hash hasher;
     Key injectedKey{39, TestVectors::keyData32B};
 
     KeyData updatedData = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
@@ -233,7 +233,7 @@ TEST_CASE("Update key successful")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashUpdatedData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
+    auto actualHashUpdatedData = hasher.hashKey(*retrievedKey, HashAlgorithm::SHA256);
 
     REQUIRE(actualHashUpdatedData.has_value());
     REQUIRE(expectedHashUpdatedData == actualHashUpdatedData);
@@ -242,7 +242,7 @@ TEST_CASE("Update key successful")
 TEST_CASE("Update key data succesively successful")
 {
     Keystore keystore;
-    Cryptography crypto;
+    Hash hasher;
     Key injectedKey{39, TestVectors::keyData32B};
 
     KeyData originalUpdatedData = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA,
@@ -270,7 +270,7 @@ TEST_CASE("Update key data succesively successful")
     auto retrievedKey = keystore.getKey(injectedKey.id);
     REQUIRE(retrievedKey.has_value());
 
-    auto actualHashUpdatedData = crypto.hashKey(*retrievedKey, HashAlgorithm::SHA256);
+    auto actualHashUpdatedData = hasher.hashKey(*retrievedKey, HashAlgorithm::SHA256);
     REQUIRE(actualHashUpdatedData.has_value());
 
     REQUIRE_FALSE(actualHashUpdatedData == expectedHashOriginalUpdatedData);

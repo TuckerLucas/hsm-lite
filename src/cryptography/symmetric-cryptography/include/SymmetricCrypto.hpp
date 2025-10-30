@@ -12,11 +12,9 @@
 #include "Key.hpp"
 #include "StatusCode.hpp"
 
-class Cryptography
+class SymmetricCryptography
 {
 public:
-    optional<vector<uint8_t>> hashKey(Key key, HashAlgorithm hashAlgorithm);
-
     optional<vector<uint8_t>> aesEncrypt(const Key& key, const vector<uint8_t>& plainText,
                                          AesKeySize aesKeySize, CipherMode aesMode,
                                          PaddingMode paddingMode, optional<IV> iv = nullopt);
