@@ -4,6 +4,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include "TestVectors.hpp"
+
 TEST_CASE("Generate key pair succeeds")
 {
     AsymmetricCryptography crypto;
@@ -21,4 +23,17 @@ TEST_CASE("Generate key pair succeeds")
 
     REQUIRE(keyPair->privateKey.id == 0U);
     REQUIRE(keyPair->publicKey.id == 0U);
+}
+
+TEST_CASE("Encryption succeeds")
+{
+    AsymmetricCryptography crypto;
+
+    auto keyPair = crypto.rsaGenerateKeyPair();
+    REQUIRE(keyPair.has_value());
+
+    auto cipherText = crypto.rsaEncrypt(keyPair->publicKey, TestVectors::plainText);
+
+    REQUIRE(cipherText.has_value());
+    REQUIRE(cipherText->size() == 256);
 }

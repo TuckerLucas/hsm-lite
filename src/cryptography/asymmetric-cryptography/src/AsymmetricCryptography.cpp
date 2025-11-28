@@ -66,3 +66,69 @@ optional<KeyPair> AsymmetricCryptography::rsaGenerateKeyPair()
     EVP_PKEY_CTX_free(ctx);
     return pair;
 }
+
+optional<std::vector<uint8_t>> AsymmetricCryptography::rsaEncrypt(const Key& publicKey,
+                                                                  const vector<uint8_t>& plainText)
+{
+    // Load the public key from PEM
+    BIO* pubBio = BIO_new_mem_buf(publicKey.data.data(), publicKey.data.size());
+    if (!pubBio)
+        return nullopt;
+
+    EVP_PKEY* pkey = PEM_read_bio_PUBKEY(pubBio, nullptr, nullptr, nullptr);
+    BIO_free(pubBio);
+
+    if (!pkey)
+        return nullopt;
+
+    // Create encryption context
+    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new(pkey, nullptr);
+    if (!ctx)
+    {
+        EVP_PKEY_free(pkey);
+        return nullopt;
+    }
+
+    if (EVP_PKEY_encrypt_init(ctx) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return nullopt;
+    }
+
+    // Set RSA padding scheme (OAEP)
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return nullopt;
+    }
+
+    // Determine required buffer size
+    size_t outLen = 0;
+    if (EVP_PKEY_encrypt(ctx, nullptr, &outLen, plainText.data(), plainText.size()) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return nullopt;
+    }
+
+    // Allocate output buffer
+    std::vector<uint8_t> cipherText(outLen);
+
+    // Perform encryption
+    if (EVP_PKEY_encrypt(ctx, cipherText.data(), &outLen, plainText.data(), plainText.size()) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return nullopt;
+    }
+
+    cipherText.resize(outLen);
+
+    // Cleanup
+    EVP_PKEY_free(pkey);
+    EVP_PKEY_CTX_free(ctx);
+
+    return cipherText;
+}
