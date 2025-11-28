@@ -38,7 +38,6 @@ optional<KeyPair> AsymmetricCryptography::rsaGenerateKeyPair()
     BUF_MEM* privBuf;
     BIO_get_mem_ptr(privBio, &privBuf);
 
-    pair.privateKey.id = 0;
     pair.privateKey.data.assign(privBuf->data, privBuf->data + privBuf->length);
 
     BIO_free(privBio);
@@ -57,7 +56,6 @@ optional<KeyPair> AsymmetricCryptography::rsaGenerateKeyPair()
     BUF_MEM* pubBuf;
     BIO_get_mem_ptr(pubBio, &pubBuf);
 
-    pair.publicKey.id = 1;
     pair.publicKey.data.assign(pubBuf->data, pubBuf->data + pubBuf->length);
 
     // Cleanup

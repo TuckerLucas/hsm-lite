@@ -1,8 +1,8 @@
+#include "AsymmetricCryptography.hpp"
+
 #include <stdlib.h>
 
 #include <catch2/catch_test_macros.hpp>
-
-#include "AsymmetricCryptography.hpp"
 
 TEST_CASE("Generate key pair succeeds")
 {
@@ -10,13 +10,15 @@ TEST_CASE("Generate key pair succeeds")
 
     auto keyPair = crypto.rsaGenerateKeyPair();
 
-    auto priv = keyPair->privateKey.data;
-    auto pub = keyPair->publicKey.data;
-
     REQUIRE(keyPair.has_value());
-    REQUIRE_FALSE(priv.empty());
-    REQUIRE_FALSE(pub.empty());
+    REQUIRE_FALSE(keyPair->privateKey.data.empty());
+    REQUIRE_FALSE(keyPair->publicKey.data.empty());
 
-    REQUIRE(std::string(priv.begin(), priv.begin() + 27) == "-----BEGIN PRIVATE KEY-----");
-    REQUIRE(std::string(pub.begin(), pub.begin() + 26) == "-----BEGIN PUBLIC KEY-----");
+    REQUIRE(std::string(keyPair->privateKey.data.begin(), keyPair->privateKey.data.begin() + 27) ==
+            "-----BEGIN PRIVATE KEY-----");
+    REQUIRE(std::string(keyPair->publicKey.data.begin(), keyPair->publicKey.data.begin() + 26) ==
+            "-----BEGIN PUBLIC KEY-----");
+
+    REQUIRE(keyPair->privateKey.id == 0U);
+    REQUIRE(keyPair->publicKey.id == 0U);
 }
