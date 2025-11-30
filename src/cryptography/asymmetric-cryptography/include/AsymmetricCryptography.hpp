@@ -17,4 +17,7 @@ public:
 
     optional<std::vector<uint8_t>> rsaSign(const Key& privateKey,
                                            const std::vector<uint8_t>& plainText);
+
+    bool rsaVerify(const Key& publicKey, const std::vector<uint8_t>& plainText,
+                   std::vector<uint8_t> signature);
 };

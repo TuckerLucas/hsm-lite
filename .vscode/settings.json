@@ -63,7 +63,8 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "csignal": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "cinttypes": "cpp"
     },
 
     "[cpp]": {

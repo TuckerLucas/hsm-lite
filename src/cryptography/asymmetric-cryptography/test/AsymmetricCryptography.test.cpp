@@ -70,3 +70,20 @@ TEST_CASE("Sign succeeds")
     REQUIRE(signature.has_value());
     REQUIRE(signature->size() == 256);
 }
+
+TEST_CASE("Verifying succeeds")
+{
+    AsymmetricCryptography crypto;
+
+    auto keyPair = crypto.rsaGenerateKeyPair();
+
+    REQUIRE(keyPair.has_value());
+
+    auto signature = crypto.rsaSign(keyPair->privateKey, TestVectors::plainText);
+
+    REQUIRE(signature.has_value());
+
+    auto verify = crypto.rsaVerify(keyPair->publicKey, TestVectors::plainText, signature.value());
+
+    REQUIRE(verify);
+}

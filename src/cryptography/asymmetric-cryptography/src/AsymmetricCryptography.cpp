@@ -289,3 +289,63 @@ optional<std::vector<uint8_t>> AsymmetricCryptography::rsaSign(const Key& privat
     EVP_PKEY_free(pkey);
     return signature;
 }
+
+bool AsymmetricCryptography::rsaVerify(const Key& publicKey, const std::vector<uint8_t>& plainText,
+                                       std::vector<uint8_t> signature)
+{
+    // Load PUBLIC key from PEM
+    BIO* bio = BIO_new_mem_buf(publicKey.data.data(), publicKey.data.size());
+    if (!bio)
+        return false;
+
+    EVP_PKEY* pkey = PEM_read_bio_PUBKEY(bio, nullptr, nullptr, nullptr);
+    BIO_free(bio);
+
+    if (!pkey)
+        return false;
+
+    EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+    if (!mdctx)
+    {
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    // Initialize verify context: SHA-256 + RSA-PSS
+    if (EVP_DigestVerifyInit(mdctx, nullptr, EVP_sha256(), nullptr, pkey) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    if (EVP_PKEY_CTX_set_rsa_padding(EVP_MD_CTX_pkey_ctx(mdctx), RSA_PKCS1_PSS_PADDING) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    if (EVP_PKEY_CTX_set_rsa_pss_saltlen(EVP_MD_CTX_pkey_ctx(mdctx), 32) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    // Feed message
+    if (EVP_DigestVerifyUpdate(mdctx, plainText.data(), plainText.size()) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    // Final verify
+    int rc = EVP_DigestVerifyFinal(mdctx, signature.data(), signature.size());
+
+    EVP_MD_CTX_free(mdctx);
+    EVP_PKEY_free(pkey);
+
+    return (rc == 1);
+}
