@@ -14,4 +14,7 @@ public:
 
     optional<std::vector<uint8_t>> rsaDecrypt(const Key& privateKey,
                                               const vector<uint8_t>& cipherText);
+
+    optional<std::vector<uint8_t>> rsaSign(const Key& privateKey,
+                                           const std::vector<uint8_t>& plainText);
 };

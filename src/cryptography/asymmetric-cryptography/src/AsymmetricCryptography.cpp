@@ -195,3 +195,97 @@ optional<std::vector<uint8_t>> AsymmetricCryptography::rsaDecrypt(const Key& pri
 
     return plainText;
 }
+
+optional<std::vector<uint8_t>> AsymmetricCryptography::rsaSign(const Key& privateKey,
+                                                               const vector<uint8_t>& plainText)
+{
+    // Load PRIVATE KEY from PEM
+    BIO* bio = BIO_new_mem_buf(privateKey.data.data(), static_cast<int>(privateKey.data.size()));
+    if (!bio)
+        return std::nullopt;
+
+    EVP_PKEY* pkey = PEM_read_bio_PrivateKey(bio, nullptr, nullptr, nullptr);
+    BIO_free(bio);
+    if (!pkey)
+        return std::nullopt;
+
+    std::optional<std::vector<uint8_t>> signature = std::nullopt;
+    EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+    if (!mdctx)
+    {
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    EVP_PKEY_CTX* pkeyCtx = nullptr;
+    // Initialize signing context with SHA-256 and the private key
+    if (EVP_DigestSignInit(mdctx, &pkeyCtx, EVP_sha256(), nullptr, pkey) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    // Configure RSA-PSS padding and parameters on the pkey context
+    if (EVP_PKEY_CTX_set_rsa_padding(pkeyCtx, RSA_PKCS1_PSS_PADDING) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    // Use SHA-256 for MGF1 as well (recommended)
+    if (EVP_PKEY_CTX_set_rsa_mgf1_md(pkeyCtx, EVP_sha256()) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    // Set salt length to hash length (or -1 to use hash length automatically)
+    if (EVP_PKEY_CTX_set_rsa_pss_saltlen(pkeyCtx, -1) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    // Feed the message (the digest operation happens internally)
+    if (!plainText.empty())
+    {
+        if (EVP_DigestSignUpdate(mdctx, plainText.data(), plainText.size()) <= 0)
+        {
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return std::nullopt;
+        }
+    }
+    else
+    {
+        // Empty message is allowed — DigestSignUpdate can be skipped or called with nullptr/0.
+    }
+
+    // Determine signature length
+    size_t sigLen = 0;
+    if (EVP_DigestSignFinal(mdctx, nullptr, &sigLen) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    std::vector<uint8_t> sig(sigLen);
+    if (EVP_DigestSignFinal(mdctx, sig.data(), &sigLen) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    sig.resize(sigLen);
+    signature = std::move(sig);
+
+    EVP_MD_CTX_free(mdctx);
+    EVP_PKEY_free(pkey);
+    return signature;
+}
