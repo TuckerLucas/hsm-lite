@@ -37,3 +37,22 @@ TEST_CASE("Encryption succeeds")
     REQUIRE(cipherText.has_value());
     REQUIRE(cipherText->size() == 256);
 }
+
+TEST_CASE("Decryption succeeds")
+{
+    AsymmetricCryptography crypto;
+
+    auto keyPair = crypto.rsaGenerateKeyPair();
+    REQUIRE(keyPair.has_value());
+
+    auto cipherText = crypto.rsaEncrypt(keyPair->publicKey, TestVectors::plainText);
+
+    REQUIRE(cipherText.has_value());
+    REQUIRE(cipherText->size() == 256);
+
+    auto plainText = crypto.rsaDecrypt(keyPair->privateKey, cipherText.value());
+
+    REQUIRE(plainText.has_value());
+    REQUIRE(plainText->size() == 32);
+    REQUIRE(plainText.value() == TestVectors::plainText);
+}

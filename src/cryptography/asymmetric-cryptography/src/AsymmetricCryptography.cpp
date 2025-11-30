@@ -132,3 +132,66 @@ optional<std::vector<uint8_t>> AsymmetricCryptography::rsaEncrypt(const Key& pub
 
     return cipherText;
 }
+
+optional<std::vector<uint8_t>> AsymmetricCryptography::rsaDecrypt(const Key& privateKey,
+                                                                  const vector<uint8_t>& cipherText)
+{
+    // Load PRIVATE KEY from PEM
+    BIO* bio = BIO_new_mem_buf(privateKey.data.data(), privateKey.data.size());
+    if (!bio)
+        return std::nullopt;
+
+    EVP_PKEY* pkey = PEM_read_bio_PrivateKey(bio, nullptr, nullptr, nullptr);
+    BIO_free(bio);
+
+    if (!pkey)
+        return std::nullopt;
+
+    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new(pkey, nullptr);
+    if (!ctx)
+    {
+        EVP_PKEY_free(pkey);
+        return std::nullopt;
+    }
+
+    if (EVP_PKEY_decrypt_init(ctx) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+
+    // Set padding to match encryption
+    if (EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+
+    // Phase 1: determine buffer size
+    size_t outLen = 0;
+    if (EVP_PKEY_decrypt(ctx, nullptr, &outLen, cipherText.data(), cipherText.size()) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+
+    std::vector<uint8_t> plainText(outLen);
+
+    // Phase 2: actual decrypt
+    if (EVP_PKEY_decrypt(ctx, plainText.data(), &outLen, cipherText.data(), cipherText.size()) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EVP_PKEY_CTX_free(ctx);
+        return std::nullopt;
+    }
+
+    plainText.resize(outLen);  // trim to actual number of bytes
+
+    EVP_PKEY_free(pkey);
+    EVP_PKEY_CTX_free(ctx);
+
+    return plainText;
+}
