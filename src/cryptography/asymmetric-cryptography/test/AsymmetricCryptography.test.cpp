@@ -3,46 +3,78 @@
 #include <stdlib.h>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include "TestVectors.hpp"
 
-TEST_CASE("Generate key pair succeeds")
+TEST_CASE("Generate key pair")
 {
     AsymmetricCryptography crypto;
 
-    auto keyPair = crypto.rsaGenerateKeyPair();
+    SECTION("Success")
+    {
+        auto rsaKeySize = GENERATE(RsaKeySize::RSA2048, RsaKeySize::RSA4096);
 
-    REQUIRE(keyPair.has_value());
-    REQUIRE_FALSE(keyPair->privateKey.data.empty());
-    REQUIRE_FALSE(keyPair->publicKey.data.empty());
+        auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
 
-    REQUIRE(std::string(keyPair->privateKey.data.begin(), keyPair->privateKey.data.begin() + 27) ==
+        REQUIRE(keyPair.has_value());
+        REQUIRE_FALSE(keyPair->privateKey.data.empty());
+        REQUIRE_FALSE(keyPair->publicKey.data.empty());
+
+        REQUIRE(
+            std::string(keyPair->privateKey.data.begin(), keyPair->privateKey.data.begin() + 27) ==
             "-----BEGIN PRIVATE KEY-----");
-    REQUIRE(std::string(keyPair->publicKey.data.begin(), keyPair->publicKey.data.begin() + 26) ==
-            "-----BEGIN PUBLIC KEY-----");
+        REQUIRE(std::string(keyPair->publicKey.data.begin(),
+                            keyPair->publicKey.data.begin() + 26) == "-----BEGIN PUBLIC KEY-----");
 
-    REQUIRE(keyPair->privateKey.id == 0U);
-    REQUIRE(keyPair->publicKey.id == 0U);
+        REQUIRE(keyPair->privateKey.id == 0U);
+        REQUIRE(keyPair->publicKey.id == 0U);
+    }
+    SECTION("Invalid key size")
+    {
+        auto rsaKeySize = static_cast<RsaKeySize>(0xff);
+
+        auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
+
+        REQUIRE_FALSE(keyPair.has_value());
+    }
 }
 
 TEST_CASE("Encryption succeeds")
 {
     AsymmetricCryptography crypto;
 
-    auto keyPair = crypto.rsaGenerateKeyPair();
+    struct TestData
+    {
+        RsaKeySize rsaKeySize;
+        uint16_t expectedCipherTextSize;
+    };
+
+    auto testData =
+        GENERATE(TestData{RsaKeySize::RSA2048, 256U}, TestData{RsaKeySize::RSA4096, 512U});
+
+    auto keyPair = crypto.rsaGenerateKeyPair(testData.rsaKeySize);
     REQUIRE(keyPair.has_value());
 
     auto cipherText = crypto.rsaEncrypt(keyPair->publicKey, TestVectors::plainText);
 
     REQUIRE(cipherText.has_value());
-    REQUIRE(cipherText->size() == 256);
+    REQUIRE(cipherText->size() == testData.expectedCipherTextSize);
 }
 
 TEST_CASE("Decryption succeeds")
 {
     AsymmetricCryptography crypto;
 
-    auto keyPair = crypto.rsaGenerateKeyPair();
+    struct TestData
+    {
+        RsaKeySize rsaKeySize;
+        uint16_t expectedPlainTextSize;
+    };
+
+    auto rsaKeySize = GENERATE(RsaKeySize::RSA2048, RsaKeySize::RSA4096);
+
+    auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
 
     REQUIRE(keyPair.has_value());
 
@@ -61,21 +93,32 @@ TEST_CASE("Sign succeeds")
 {
     AsymmetricCryptography crypto;
 
-    auto keyPair = crypto.rsaGenerateKeyPair();
+    struct TestData
+    {
+        RsaKeySize rsaKeySize;
+        uint16_t expectedSignatureSize;
+    };
+
+    auto testData =
+        GENERATE(TestData{RsaKeySize::RSA2048, 256U}, TestData{RsaKeySize::RSA4096, 512U});
+
+    auto keyPair = crypto.rsaGenerateKeyPair(testData.rsaKeySize);
 
     REQUIRE(keyPair.has_value());
 
     auto signature = crypto.rsaSign(keyPair->privateKey, TestVectors::plainText);
 
     REQUIRE(signature.has_value());
-    REQUIRE(signature->size() == 256);
+    REQUIRE(signature->size() == testData.expectedSignatureSize);
 }
 
 TEST_CASE("Verifying succeeds")
 {
     AsymmetricCryptography crypto;
 
-    auto keyPair = crypto.rsaGenerateKeyPair();
+    auto rsaKeySize = GENERATE(RsaKeySize::RSA2048, RsaKeySize::RSA4096);
+
+    auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
 
     REQUIRE(keyPair.has_value());
 

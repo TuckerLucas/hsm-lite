@@ -3,7 +3,7 @@
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 
-optional<KeyPair> AsymmetricCryptography::rsaGenerateKeyPair()
+optional<KeyPair> AsymmetricCryptography::rsaGenerateKeyPair(RsaKeySize rsaKeySize)
 {
     EVP_PKEY_CTX* ctx = nullptr;
     EVP_PKEY* pkey = nullptr;
@@ -19,7 +19,7 @@ optional<KeyPair> AsymmetricCryptography::rsaGenerateKeyPair()
         return nullopt;
     }
 
-    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 2048) <= 0)
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, static_cast<int>(rsaKeySize)) <= 0)
     {
         return nullopt;
     }
@@ -290,8 +290,8 @@ optional<std::vector<uint8_t>> AsymmetricCryptography::rsaSign(const Key& privat
     return signature;
 }
 
-bool AsymmetricCryptography::rsaVerify(const Key& publicKey, const std::vector<uint8_t>& plainText,
-                                       std::vector<uint8_t> signature)
+bool AsymmetricCryptography::rsaVerify(const Key& publicKey, const vector<uint8_t>& plainText,
+                                       const vector<uint8_t>& signature)
 {
     // Load PUBLIC key from PEM
     BIO* bio = BIO_new_mem_buf(publicKey.data.data(), publicKey.data.size());
@@ -326,7 +326,7 @@ bool AsymmetricCryptography::rsaVerify(const Key& publicKey, const std::vector<u
         return false;
     }
 
-    if (EVP_PKEY_CTX_set_rsa_pss_saltlen(EVP_MD_CTX_pkey_ctx(mdctx), 32) <= 0)
+    if (EVP_PKEY_CTX_set_rsa_pss_saltlen(EVP_MD_CTX_pkey_ctx(mdctx), -1) <= 0)
     {
         EVP_MD_CTX_free(mdctx);
         EVP_PKEY_free(pkey);

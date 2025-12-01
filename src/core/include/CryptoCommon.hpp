@@ -24,6 +24,12 @@ enum class AesKeySize
     AES256 = 256
 };
 
+enum class RsaKeySize
+{
+    RSA2048 = 2048,
+    RSA4096 = 4096
+};
+
 enum class CipherMode
 {
     ECB,
