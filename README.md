@@ -44,14 +44,10 @@ And multiple cipher modes:
 - CBC
 - CTR
 
-#### Asymmetric Cryptography (In Progress)
+#### Asymmetric Cryptography
 
-Currently under development. Implemented and planned features include:
-
-- RSA key pair generation (implemented)
-- RSA encryption (in progress)
-- RSA decryption (in progress)
-- RSA signing and verification (next step)
+- RSA-2048
+- RSA-4096
 
 ## Future Work
 
