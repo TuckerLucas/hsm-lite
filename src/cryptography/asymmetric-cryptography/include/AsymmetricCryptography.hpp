@@ -17,4 +17,6 @@ public:
 
     bool rsaVerify(const Key& publicKey, const vector<uint8_t>& plainText,
                    const vector<uint8_t>& signature);
+
+    optional<KeyPair> ecdsaGenerateKeyPair(EllipticCurve ellipticCurve);
 };

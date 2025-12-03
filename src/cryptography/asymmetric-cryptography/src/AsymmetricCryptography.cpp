@@ -349,3 +349,80 @@ bool AsymmetricCryptography::rsaVerify(const Key& publicKey, const vector<uint8_
 
     return (rc == 1);
 }
+
+optional<KeyPair> AsymmetricCryptography::ecdsaGenerateKeyPair(EllipticCurve ellipticCurve)
+{
+    int nid = 0;
+
+    switch (ellipticCurve)
+    {
+        case EllipticCurve::SECP256R1:
+            nid = NID_X9_62_prime256v1;
+            break;
+        case EllipticCurve::SECP384R1:
+            nid = NID_secp384r1;
+            break;
+        case EllipticCurve::SECP521R1:
+            nid = NID_secp521r1;
+            break;
+        default:
+            return nullopt;
+    }
+
+    // Create EC key structure for selected curve
+    EC_KEY* ecKey = EC_KEY_new_by_curve_name(nid);
+    if (!ecKey)
+    {
+        return nullopt;
+    }
+
+    if (EC_KEY_generate_key(ecKey) <= 0)
+    {
+        EC_KEY_free(ecKey);
+        return nullopt;
+    }
+
+    // Wrap EC_KEY in an EVP_PKEY
+    EVP_PKEY* pkey = EVP_PKEY_new();
+    if (!pkey)
+    {
+        EC_KEY_free(ecKey);
+        return nullopt;
+    }
+
+    if (EVP_PKEY_assign_EC_KEY(pkey, ecKey) <= 0)
+    {
+        EVP_PKEY_free(pkey);
+        EC_KEY_free(ecKey);
+        return nullopt;
+    }
+
+    // We no longer free ecKey because it's owned by EVP_PKEY now
+
+    KeyPair pair;
+
+    // ---- Write PRIVATE KEY (PKCS#8) ----
+    BIO* privBio = BIO_new(BIO_s_mem());
+    PEM_write_bio_PrivateKey(privBio, pkey, nullptr, nullptr, 0, nullptr, nullptr);
+
+    BUF_MEM* privBuf;
+    BIO_get_mem_ptr(privBio, &privBuf);
+
+    pair.privateKey.data.assign(privBuf->data, privBuf->data + privBuf->length);
+    BIO_free(privBio);
+
+    // ---- Write PUBLIC KEY (SPKI) ----
+    BIO* pubBio = BIO_new(BIO_s_mem());
+    PEM_write_bio_PUBKEY(pubBio, pkey);
+
+    BUF_MEM* pubBuf;
+    BIO_get_mem_ptr(pubBio, &pubBuf);
+
+    pair.publicKey.data.assign(pubBuf->data, pubBuf->data + pubBuf->length);
+    BIO_free(pubBio);
+
+    // Cleanup
+    EVP_PKEY_free(pkey);
+
+    return pair;
+}

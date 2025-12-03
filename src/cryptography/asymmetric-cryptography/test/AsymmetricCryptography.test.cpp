@@ -130,3 +130,35 @@ TEST_CASE("Verifying succeeds")
 
     REQUIRE(verify);
 }
+
+TEST_CASE("ECDSA Generate Key Pair")
+{
+    AsymmetricCryptography crypto;
+
+    SECTION("SUCCESS")
+    {
+        auto ellipticCurve = GENERATE(EllipticCurve::SECP256R1, EllipticCurve::SECP384R1);
+
+        auto keyPair = crypto.ecdsaGenerateKeyPair(ellipticCurve);
+
+        REQUIRE(keyPair.has_value());
+        REQUIRE_FALSE(keyPair->privateKey.data.empty());
+        REQUIRE_FALSE(keyPair->publicKey.data.empty());
+        REQUIRE(
+            std::string(keyPair->privateKey.data.begin(), keyPair->privateKey.data.begin() + 27) ==
+            "-----BEGIN PRIVATE KEY-----");
+        REQUIRE(std::string(keyPair->publicKey.data.begin(),
+                            keyPair->publicKey.data.begin() + 26) == "-----BEGIN PUBLIC KEY-----");
+
+        REQUIRE(keyPair->privateKey.id == 0U);
+        REQUIRE(keyPair->publicKey.id == 0U);
+    }
+    SECTION("Invalid elliptic curve")
+    {
+        auto ellipticCurve = static_cast<EllipticCurve>(0xff);
+
+        auto keyPair = crypto.ecdsaGenerateKeyPair(ellipticCurve);
+
+        REQUIRE_FALSE(keyPair.has_value());
+    }
+}
