@@ -494,3 +494,63 @@ optional<vector<uint8_t>> AsymmetricCryptography::ecdsaSign(const Key& privateKe
 
     return signature;
 }
+
+bool AsymmetricCryptography::ecdsaVerify(const Key& publicKey, const vector<uint8_t>& plainText,
+                                         const vector<uint8_t>& signature)
+{
+    // Load PUBLIC KEY from PEM
+    BIO* bio = BIO_new_mem_buf(publicKey.data.data(), static_cast<int>(publicKey.data.size()));
+    if (!bio)
+        return false;
+
+    EVP_PKEY* pkey = PEM_read_bio_PUBKEY(bio, nullptr, nullptr, nullptr);
+    BIO_free(bio);
+
+    if (!pkey)
+        return false;
+
+    bool result = false;
+
+    EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+    if (!mdctx)
+    {
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    EVP_PKEY_CTX* pkeyCtx = nullptr;
+
+    // Init verify context with SHA-256
+    if (EVP_DigestVerifyInit(mdctx, &pkeyCtx, EVP_sha256(), nullptr, pkey) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return false;
+    }
+
+    // Feed input
+    if (!plainText.empty())
+    {
+        if (EVP_DigestVerifyUpdate(mdctx, plainText.data(), plainText.size()) <= 0)
+        {
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return false;
+        }
+    }
+
+    // Perform verification
+    int verifyStatus = EVP_DigestVerifyFinal(mdctx, signature.data(), signature.size());
+
+    if (verifyStatus == 1)
+        result = true;  // Signature valid
+    else if (verifyStatus == 0)
+        result = false;  // Signature invalid
+    else
+        result = false;  // Error in verification
+
+    EVP_MD_CTX_free(mdctx);
+    EVP_PKEY_free(pkey);
+
+    return result;
+}

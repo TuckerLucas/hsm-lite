@@ -137,7 +137,8 @@ TEST_CASE("ECDSA Generate Key Pair")
 
     SECTION("SUCCESS")
     {
-        auto ellipticCurve = GENERATE(EllipticCurve::SECP256R1, EllipticCurve::SECP384R1);
+        auto ellipticCurve =
+            GENERATE(EllipticCurve::SECP256R1, EllipticCurve::SECP384R1, EllipticCurve::SECP521R1);
 
         auto keyPair = crypto.ecdsaGenerateKeyPair(ellipticCurve);
 
@@ -167,10 +168,66 @@ TEST_CASE("ECDSA Sign succeeds")
 {
     AsymmetricCryptography crypto;
 
-    auto keyPair = crypto.ecdsaGenerateKeyPair(EllipticCurve::SECP256R1);
+    auto ellipticCurve =
+        GENERATE(EllipticCurve::SECP256R1, EllipticCurve::SECP384R1, EllipticCurve::SECP521R1);
+
+    auto keyPair = crypto.ecdsaGenerateKeyPair(ellipticCurve);
     REQUIRE(keyPair.has_value());
 
     auto signature = crypto.ecdsaSign(keyPair->privateKey, TestVectors::plainText);
 
     REQUIRE(signature.has_value());
+}
+
+TEST_CASE("ECDSA Verify")
+{
+    AsymmetricCryptography crypto;
+
+    auto ellipticCurve =
+        GENERATE(EllipticCurve::SECP256R1, EllipticCurve::SECP384R1, EllipticCurve::SECP521R1);
+
+    SECTION("Success")
+    {
+        auto keyPair = crypto.ecdsaGenerateKeyPair(ellipticCurve);
+        REQUIRE(keyPair.has_value());
+
+        auto signature = crypto.ecdsaSign(keyPair->privateKey, TestVectors::plainText);
+        REQUIRE(signature.has_value());
+
+        auto verify =
+            crypto.ecdsaVerify(keyPair->publicKey, TestVectors::plainText, signature.value());
+
+        REQUIRE(verify == true);
+    }
+
+    SECTION("Fails on modified message")
+    {
+        auto keyPair = crypto.ecdsaGenerateKeyPair(ellipticCurve);
+        REQUIRE(keyPair.has_value());
+
+        auto signature = crypto.ecdsaSign(keyPair->privateKey, TestVectors::plainText);
+        REQUIRE(signature.has_value());
+
+        std::vector<uint8_t> tamperedPlainText = TestVectors::plainText;
+        tamperedPlainText[0] ^= 0xFF;  // flip the first byte
+
+        auto verify = crypto.ecdsaVerify(keyPair->publicKey, tamperedPlainText, signature.value());
+        REQUIRE(verify == false);
+    }
+
+    SECTION("Fails with wrong public key")
+    {
+        auto keyPair1 = crypto.ecdsaGenerateKeyPair(ellipticCurve);
+        auto keyPair2 = crypto.ecdsaGenerateKeyPair(ellipticCurve);
+
+        REQUIRE(keyPair1.has_value());
+        REQUIRE(keyPair2.has_value());
+
+        auto signature = crypto.ecdsaSign(keyPair1->privateKey, TestVectors::plainText);
+        REQUIRE(signature.has_value());
+
+        auto verify =
+            crypto.ecdsaVerify(keyPair2->publicKey, TestVectors::plainText, signature.value());
+        REQUIRE(verify == false);
+    }
 }

@@ -21,4 +21,7 @@ public:
     optional<KeyPair> ecdsaGenerateKeyPair(EllipticCurve ellipticCurve);
 
     optional<vector<uint8_t>> ecdsaSign(const Key& privateKey, const vector<uint8_t>& plainText);
+
+    bool ecdsaVerify(const Key& publicKey, const vector<uint8_t>& plainText,
+                     const vector<uint8_t>& signature);
 };
