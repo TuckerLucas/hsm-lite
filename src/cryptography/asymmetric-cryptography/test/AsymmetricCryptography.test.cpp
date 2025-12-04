@@ -7,7 +7,7 @@
 
 #include "TestVectors.hpp"
 
-TEST_CASE("Generate key pair")
+TEST_CASE("RSA Generate key pair")
 {
     AsymmetricCryptography crypto;
 
@@ -40,7 +40,7 @@ TEST_CASE("Generate key pair")
     }
 }
 
-TEST_CASE("Encryption succeeds")
+TEST_CASE("RSA Encryption succeeds")
 {
     AsymmetricCryptography crypto;
 
@@ -62,7 +62,7 @@ TEST_CASE("Encryption succeeds")
     REQUIRE(cipherText->size() == testData.expectedCipherTextSize);
 }
 
-TEST_CASE("Decryption succeeds")
+TEST_CASE("RSA Decryption succeeds")
 {
     AsymmetricCryptography crypto;
 
@@ -89,7 +89,7 @@ TEST_CASE("Decryption succeeds")
     REQUIRE(plainText.value() == TestVectors::plainText);
 }
 
-TEST_CASE("Sign succeeds")
+TEST_CASE("RSA Sign succeeds")
 {
     AsymmetricCryptography crypto;
 
@@ -112,7 +112,7 @@ TEST_CASE("Sign succeeds")
     REQUIRE(signature->size() == testData.expectedSignatureSize);
 }
 
-TEST_CASE("Verifying succeeds")
+TEST_CASE("RSA Verifying succeeds")
 {
     AsymmetricCryptography crypto;
 
@@ -161,4 +161,11 @@ TEST_CASE("ECDSA Generate Key Pair")
 
         REQUIRE_FALSE(keyPair.has_value());
     }
+}
+
+TEST_CASE("ECDSA Sign succeeds")
+{
+    AsymmetricCryptography crypto;
+
+    auto keyPair = crypto.ecdsaGenerateKeyPair(EllipticCurve::SECP256R1);
 }
