@@ -168,4 +168,9 @@ TEST_CASE("ECDSA Sign succeeds")
     AsymmetricCryptography crypto;
 
     auto keyPair = crypto.ecdsaGenerateKeyPair(EllipticCurve::SECP256R1);
+    REQUIRE(keyPair.has_value());
+
+    auto signature = crypto.ecdsaSign(keyPair->privateKey, TestVectors::plainText);
+
+    REQUIRE(signature.has_value());
 }

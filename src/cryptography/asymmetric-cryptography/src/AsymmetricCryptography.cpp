@@ -426,3 +426,71 @@ optional<KeyPair> AsymmetricCryptography::ecdsaGenerateKeyPair(EllipticCurve ell
 
     return pair;
 }
+
+optional<vector<uint8_t>> AsymmetricCryptography::ecdsaSign(const Key& privateKey,
+                                                            const vector<uint8_t>& plainText)
+{
+    // Load private key from PEM
+    BIO* bio = BIO_new_mem_buf(privateKey.data.data(), static_cast<int>(privateKey.data.size()));
+    if (!bio)
+        return nullopt;
+
+    EVP_PKEY* pkey = PEM_read_bio_PrivateKey(bio, nullptr, nullptr, nullptr);
+    BIO_free(bio);
+
+    if (!pkey)
+        return nullopt;
+
+    EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+    if (!mdctx)
+    {
+        EVP_PKEY_free(pkey);
+        return nullopt;
+    }
+
+    // Initialize signing context (ECDSA always uses EVP_sha256 for P-256)
+    if (EVP_DigestSignInit(mdctx, nullptr, EVP_sha256(), nullptr, pkey) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return nullopt;
+    }
+
+    // Add message
+    if (!plainText.empty())
+    {
+        if (EVP_DigestSignUpdate(mdctx, plainText.data(), plainText.size()) <= 0)
+        {
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return nullopt;
+        }
+    }
+
+    // Determine required signature length
+    size_t sigLen = 0;
+    if (EVP_DigestSignFinal(mdctx, nullptr, &sigLen) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return nullopt;
+    }
+
+    vector<uint8_t> signature(sigLen);
+
+    // Produce signature
+    if (EVP_DigestSignFinal(mdctx, signature.data(), &sigLen) <= 0)
+    {
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return nullopt;
+    }
+
+    signature.resize(sigLen);
+
+    // Cleanup
+    EVP_MD_CTX_free(mdctx);
+    EVP_PKEY_free(pkey);
+
+    return signature;
+}

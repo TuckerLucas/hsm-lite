@@ -19,4 +19,6 @@ public:
                    const vector<uint8_t>& signature);
 
     optional<KeyPair> ecdsaGenerateKeyPair(EllipticCurve ellipticCurve);
+
+    optional<vector<uint8_t>> ecdsaSign(const Key& privateKey, const vector<uint8_t>& plainText);
 };
