@@ -1,23 +1,26 @@
 #include "SymmetricCryptography.hpp"
 
-optional<vector<uint8_t>> SymmetricCryptography::aesEncrypt(
-    const Key& key, const vector<uint8_t>& plainText, AesKeySize aesKeySize, CipherMode aesMode,
-    PaddingMode paddingMode, optional<IV> iv)
+optional<vector<uint8_t>> SymmetricCryptography::aesEncrypt(const Key& key,
+                                                            const vector<uint8_t>& plainText,
+                                                            AesKeySize aesKeySize,
+                                                            CipherMode aesMode, optional<IV> iv)
 {
-    return aesCrypt(key, plainText, aesKeySize, aesMode, paddingMode, CipherOperation::Encrypt, iv);
+    return aesCrypt(key, plainText, aesKeySize, aesMode, CipherOperation::Encrypt, iv);
 }
 
-optional<vector<uint8_t>> SymmetricCryptography::aesDecrypt(
-    const Key& key, const vector<uint8_t>& cipherText, AesKeySize aesKeySize, CipherMode aesMode,
-    PaddingMode paddingMode, optional<IV> iv)
+optional<vector<uint8_t>> SymmetricCryptography::aesDecrypt(const Key& key,
+                                                            const vector<uint8_t>& cipherText,
+                                                            AesKeySize aesKeySize,
+                                                            CipherMode aesMode, optional<IV> iv)
 {
-    return aesCrypt(key, cipherText, aesKeySize, aesMode, paddingMode, CipherOperation::Decrypt,
-                    iv);
+    return aesCrypt(key, cipherText, aesKeySize, aesMode, CipherOperation::Decrypt, iv);
 }
 
-optional<vector<uint8_t>> SymmetricCryptography::aesCrypt(
-    const Key& key, const vector<uint8_t>& input, AesKeySize aesKeySize, CipherMode aesMode,
-    PaddingMode paddingMode, CipherOperation cipherOperation, optional<IV> iv)
+optional<vector<uint8_t>> SymmetricCryptography::aesCrypt(const Key& key,
+                                                          const vector<uint8_t>& input,
+                                                          AesKeySize aesKeySize, CipherMode aesMode,
+                                                          CipherOperation cipherOperation,
+                                                          optional<IV> iv)
 {
     if (key.isEmpty())
     {
@@ -129,11 +132,6 @@ optional<vector<uint8_t>> SymmetricCryptography::aesCrypt(
     if (initStatus != 1)
     {
         return nullopt;
-    }
-
-    if (paddingMode == PaddingMode::None)
-    {
-        EVP_CIPHER_CTX_set_padding(ctx.get(), 0);
     }
 
     vector<uint8_t> output(input.size() + EVP_CIPHER_block_size(cipher));

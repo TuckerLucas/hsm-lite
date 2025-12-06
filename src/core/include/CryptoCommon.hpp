@@ -44,12 +44,6 @@ enum class EllipticCurve
     SECP521R1
 };
 
-enum class PaddingMode
-{
-    None,
-    PKCS7
-};
-
 enum class CipherOperation
 {
     Encrypt,
