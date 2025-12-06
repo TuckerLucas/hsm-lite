@@ -40,9 +40,9 @@ Supports AES encryption and decryption with multiple key sizes:
 
 And multiple cipher modes:
 
-- ECB
-- CBC
-- CTR
+- ECB (PKCS#7 padding)
+- CBC (PKCS#7 padding)
+- CTR (No padding)
 
 #### <ins>Asymmetric Cryptography</ins>
 
