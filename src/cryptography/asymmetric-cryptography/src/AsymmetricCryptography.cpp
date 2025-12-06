@@ -260,10 +260,6 @@ optional<std::vector<uint8_t>> AsymmetricCryptography::rsaSign(const Key& privat
             return std::nullopt;
         }
     }
-    else
-    {
-        // Empty message is allowed — DigestSignUpdate can be skipped or called with nullptr/0.
-    }
 
     // Determine signature length
     size_t sigLen = 0;
@@ -542,12 +538,7 @@ bool AsymmetricCryptography::ecdsaVerify(const Key& publicKey, const vector<uint
     // Perform verification
     int verifyStatus = EVP_DigestVerifyFinal(mdctx, signature.data(), signature.size());
 
-    if (verifyStatus == 1)
-        result = true;  // Signature valid
-    else if (verifyStatus == 0)
-        result = false;  // Signature invalid
-    else
-        result = false;  // Error in verification
+    result = (verifyStatus == 1) ? true : false;
 
     EVP_MD_CTX_free(mdctx);
     EVP_PKEY_free(pkey);
