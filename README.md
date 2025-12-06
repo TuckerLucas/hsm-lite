@@ -6,7 +6,7 @@ A C++ project aimed at emulating the core functionalities of a **Hardware Securi
 
 - The goal of hsm-lite is to provide a simplified, software-based environment that mimics an HSM’s core services. 
 - The project is being developed following **Test-Driven Development (TDD)** principles to ensure correctness,  maintainability, and clarity of design.
-- hsm-lite is developed in C++17, uses **OpenSSL** as a cryptographic backend and employs **GoogleTest** as its testing framework.
+- hsm-lite is developed in C++17, uses **OpenSSL** as a cryptographic backend and employs **Catch2** as its testing framework.
 
 ## Implemented Features
 
@@ -21,7 +21,7 @@ Implements basic key management functionalities to simulate an HSM’s keystore:
 
 ### Cryptographic Features
 
-#### Hashing
+#### <ins>Hashing</ins>
 
 Allows for key hashing using the SHA-2 family of hashing algorithms:
 
@@ -30,7 +30,7 @@ Allows for key hashing using the SHA-2 family of hashing algorithms:
 - SHA-384  
 - SHA-512  
 
-#### Symmetric Cryptography
+#### <ins>Symmetric Cryptography</ins>
 
 Supports AES encryption and decryption with multiple key sizes:
 
@@ -44,16 +44,25 @@ And multiple cipher modes:
 - CBC
 - CTR
 
-#### Asymmetric Cryptography
+#### <ins>Asymmetric Cryptography</ins>
 
+##### RSA 
+
+Used for **key pair generation**, **encryption**, **decryption**, **signing** and **verifying**:
 - RSA-2048
 - RSA-4096
+
+##### ECDSA
+
+Used for **key pair generation**, **signing** and **verifying**:
+- P-256
+- P-384
+- P-521
 
 ## Future Work
 
 Future planned additions include:
 
-- ECDSA asymmetric cryptography
 - Persistent key storage
 - Further hashing algorithms and symmetric ciphers/cipher modes
 - HSM lifecycle management 
