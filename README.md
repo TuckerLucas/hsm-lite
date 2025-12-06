@@ -48,16 +48,23 @@ And multiple cipher modes:
 
 ##### RSA 
 
-Used for **key pair generation**, **encryption**, **decryption**, **signing** and **verifying**:
+Supported key sizes:
 - RSA-2048
 - RSA-4096
 
+Using:
+- RSA-OAEP with SHA-256 for encryption
+- RSA-PSS with SHA-256 / MGF1-SHA-256 for signing
+
 ##### ECDSA
 
-Used for **key pair generation**, **signing** and **verifying**:
+Supported curves:
 - P-256
 - P-384
 - P-521
+
+Algorithm used for signing:
+- SHA-256
 
 ## Future Work
 
