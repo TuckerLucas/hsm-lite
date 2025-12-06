@@ -112,23 +112,57 @@ TEST_CASE("RSA Sign succeeds")
     REQUIRE(signature->size() == testData.expectedSignatureSize);
 }
 
-TEST_CASE("RSA Verifying succeeds")
+TEST_CASE("RSA Verify")
 {
     AsymmetricCryptography crypto;
 
     auto rsaKeySize = GENERATE(RsaKeySize::RSA2048, RsaKeySize::RSA4096);
 
-    auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
+    SECTION("Success")
+    {
+        auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
 
-    REQUIRE(keyPair.has_value());
+        REQUIRE(keyPair.has_value());
 
-    auto signature = crypto.rsaSign(keyPair->privateKey, TestVectors::plainText);
+        auto signature = crypto.rsaSign(keyPair->privateKey, TestVectors::plainText);
+        REQUIRE(signature.has_value());
 
-    REQUIRE(signature.has_value());
+        auto verify =
+            crypto.rsaVerify(keyPair->publicKey, TestVectors::plainText, signature.value());
 
-    auto verify = crypto.rsaVerify(keyPair->publicKey, TestVectors::plainText, signature.value());
+        REQUIRE(verify == true);
+    }
 
-    REQUIRE(verify);
+    SECTION("Fails on modified message")
+    {
+        auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
+        REQUIRE(keyPair.has_value());
+
+        auto signature = crypto.rsaSign(keyPair->privateKey, TestVectors::plainText);
+        REQUIRE(signature.has_value());
+
+        std::vector<uint8_t> tamperedPlainText = TestVectors::plainText;
+        tamperedPlainText[0] ^= 0xFF;  // flip the first byte
+
+        auto verify = crypto.rsaVerify(keyPair->publicKey, tamperedPlainText, signature.value());
+        REQUIRE(verify == false);
+    }
+
+    SECTION("Fails with wrong public key")
+    {
+        auto keyPair1 = crypto.rsaGenerateKeyPair(rsaKeySize);
+        auto keyPair2 = crypto.rsaGenerateKeyPair(rsaKeySize);
+
+        REQUIRE(keyPair1.has_value());
+        REQUIRE(keyPair2.has_value());
+
+        auto signature = crypto.rsaSign(keyPair1->privateKey, TestVectors::plainText);
+        REQUIRE(signature.has_value());
+
+        auto verify =
+            crypto.rsaVerify(keyPair2->publicKey, TestVectors::plainText, signature.value());
+        REQUIRE(verify == false);
+    }
 }
 
 TEST_CASE("ECDSA Generate Key Pair")
