@@ -163,13 +163,28 @@ TEST_CASE("RSA Verify")
             crypto.rsaVerify(keyPair2->publicKey, TestVectors::plainText, signature.value());
         REQUIRE(verify == false);
     }
+
+    SECTION("Fails with invalidsignature")
+    {
+        auto keyPair = crypto.rsaGenerateKeyPair(rsaKeySize);
+        REQUIRE(keyPair.has_value());
+
+        auto invalidSignature = crypto.rsaSign(keyPair->privateKey, TestVectors::plainText);
+        REQUIRE(invalidSignature.has_value());
+
+        invalidSignature->at(0) ^= 0x01;  // flip the LSB of the first byte
+
+        auto verify =
+            crypto.rsaVerify(keyPair->publicKey, TestVectors::plainText, invalidSignature.value());
+        REQUIRE(verify == false);
+    }
 }
 
 TEST_CASE("ECDSA Generate Key Pair")
 {
     AsymmetricCryptography crypto;
 
-    SECTION("SUCCESS")
+    SECTION("Success")
     {
         auto ellipticCurve =
             GENERATE(EllipticCurve::SECP256R1, EllipticCurve::SECP384R1, EllipticCurve::SECP521R1);
@@ -243,7 +258,7 @@ TEST_CASE("ECDSA Verify")
         REQUIRE(signature.has_value());
 
         std::vector<uint8_t> tamperedPlainText = TestVectors::plainText;
-        tamperedPlainText[0] ^= 0xFF;  // flip the first byte
+        tamperedPlainText[0] ^= 0x01;  // flip the LSB of the first byte
 
         auto verify = crypto.ecdsaVerify(keyPair->publicKey, tamperedPlainText, signature.value());
         REQUIRE(verify == false);
@@ -262,6 +277,21 @@ TEST_CASE("ECDSA Verify")
 
         auto verify =
             crypto.ecdsaVerify(keyPair2->publicKey, TestVectors::plainText, signature.value());
+        REQUIRE(verify == false);
+    }
+
+    SECTION("Fails with invalid signature")
+    {
+        auto keyPair = crypto.ecdsaGenerateKeyPair(ellipticCurve);
+        REQUIRE(keyPair.has_value());
+
+        auto invalidSignature = crypto.ecdsaSign(keyPair->privateKey, TestVectors::plainText);
+        REQUIRE(invalidSignature.has_value());
+
+        invalidSignature->at(0) ^= 0x01;  // flip the LSB of the first byte
+
+        auto verify = crypto.ecdsaVerify(keyPair->publicKey, TestVectors::plainText,
+                                         invalidSignature.value());
         REQUIRE(verify == false);
     }
 }
